@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
+import java.util.concurrent.TimeUnit;
 
 public class SqlFunctions
 {
@@ -149,82 +150,171 @@ public class SqlFunctions
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static <TimeLong extends TemporalAmount> LocalDateTime addDate(LocalDateTime time, TimeLong timeLong)
+    public static LocalDateTime addDays(LocalDateTime time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static <TimeLong extends TemporalAmount> LocalDate addDate(LocalDate time, TimeLong timeLong)
+    public static LocalDateTime addDays(LocalDate time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static LocalDateTime addDate(LocalDateTime time, int days)
+    public static LocalDateTime addHours(LocalDateTime time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static LocalDate addDate(LocalDate time, int days)
+    public static LocalDateTime addHours(LocalDate time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static LocalDateTime addDate(LocalDateTime time, LocalDateTime addtime)
+    public static LocalDateTime addMinutes(LocalDateTime time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
-    public static LocalDate addDate(LocalDate time, LocalDate addtime)
+    public static LocalDateTime addMinutes(LocalDate time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
-    public static LocalDateTime addTime(LocalDateTime time, LocalTime addtime)
+    public static LocalDateTime addSeconds(LocalDateTime time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
-    public static LocalDateTime addTime(LocalDateTime time, String addtime)
+    public static LocalDateTime addSeconds(LocalDate time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
-    public static LocalTime addTime(LocalTime time, LocalTime addtime)
+    public static LocalDateTime addMicroSeconds(LocalDateTime time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
-    public static LocalDateTime addTime(String time, LocalTime addtime)
+    public static LocalDateTime addMicroSeconds(LocalDate time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
-    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
-    public static LocalDateTime addTime(String time, String addtime)
+    public static LocalDateTime addMilliSeconds(LocalDateTime time, long duration)
     {
         throw new SqlFunctionInvokeException();
     }
+
+    public static LocalDateTime addMilliSeconds(LocalDate time, long duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    public static LocalDateTime addNanoSeconds(LocalDateTime time, long duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    public static LocalDateTime addNanoSeconds(LocalDate time, long duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    public static LocalDateTime addMonths(LocalDateTime time, int duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    public static LocalDateTime addMonths(LocalDate time, int duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    public static LocalDateTime addYears(LocalDateTime time, int duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    public static LocalDateTime addYears(LocalDate time, int duration)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+//    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
+//    public static <TimeLong extends TemporalAmount> LocalDateTime addDate(LocalDateTime time, TimeLong timeLong)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
+//    public static <TimeLong extends TemporalAmount> LocalDate addDate(LocalDate time, TimeLong timeLong)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+
+//    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
+//    public static LocalDateTime addDate(LocalDateTime time, int days)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
+//    public static LocalDate addDate(LocalDate time, int days)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
+//    public static LocalDateTime addDate(LocalDateTime time, LocalDateTime addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDDATE({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDDATE({},{})")
+//    public static LocalDate addDate(LocalDate time, LocalDate addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+
+//    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
+//    public static LocalDateTime addTime(LocalDateTime time, LocalTime addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
+//    public static LocalDateTime addTime(LocalDateTime time, String addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
+//    public static LocalTime addTime(LocalTime time, LocalTime addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
+//    public static LocalDateTime addTime(String time, LocalTime addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+//
+//    @Ext(dbType = DbType.H2, function = "ADDTIME({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "ADDTIME({},{})")
+//    public static LocalDateTime addTime(String time, String addtime)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     @Ext(dbType = DbType.H2, function = "DATE({})")
     @Ext(dbType = DbType.MySQL, function = "DATE({})")
@@ -242,49 +332,196 @@ public class SqlFunctions
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(LocalDateTime t1, LocalDateTime t2)
+    public static int daysDiff(LocalDateTime t1, LocalDateTime t2)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(LocalDateTime t1, LocalDate t2)
+    public static int daysDiff(LocalDateTime t1, LocalDate t2)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(LocalDateTime t1, String t2)
+    public static int daysDiff(LocalDateTime t1, String t2)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(LocalDate t1, LocalDate t2)
+    public static int daysDiff(LocalDate t1, LocalDate t2)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(LocalDate t1, LocalDateTime t2)
+    public static int daysDiff(LocalDate t1, LocalDateTime t2)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(LocalDate t1, String t2)
+    public static int daysDiff(LocalDate t1, String t2)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
     @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
-    public static int dateDiff(String t1, String t2)
+    public static int daysDiff(String t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(LocalDateTime t1, LocalDateTime t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(LocalDateTime t1, LocalDate t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(LocalDateTime t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(LocalDate t1, LocalDate t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(LocalDate t1, LocalDateTime t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(LocalDate t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int hoursDiff(String t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(LocalDateTime t1, LocalDateTime t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(LocalDateTime t1, LocalDate t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(LocalDateTime t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(LocalDate t1, LocalDate t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(LocalDate t1, LocalDateTime t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(LocalDate t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int minutesDiff(String t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(LocalDateTime t1, LocalDateTime t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(LocalDateTime t1, LocalDate t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(LocalDateTime t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(LocalDate t1, LocalDate t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(LocalDate t1, LocalDateTime t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(LocalDate t1, String t2)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "DATEDIFF({},{})")
+    @Ext(dbType = DbType.MySQL, function = "DATEDIFF({},{})")
+    public static int secondsDiff(String t1, String t2)
     {
         throw new SqlFunctionInvokeException();
     }
@@ -1110,12 +1347,12 @@ public class SqlFunctions
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "ROUND({})")
-    @Ext(dbType = DbType.MySQL, function = "ROUND({})")
-    public static <T extends Number> T round(T a)
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    @Ext(dbType = DbType.H2, function = "ROUND({})")
+//    @Ext(dbType = DbType.MySQL, function = "ROUND({})")
+//    public static <T extends Number> T round(T a)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     @Ext(dbType = DbType.H2, function = "ROUND({},{})")
     @Ext(dbType = DbType.MySQL, function = "ROUND({},{})")
@@ -1141,6 +1378,13 @@ public class SqlFunctions
     @Ext(dbType = DbType.H2, function = "TRUNCATE({},{})")
     @Ext(dbType = DbType.MySQL, function = "TRUNCATE({},{})")
     public static <T extends Number> long truncate(T a, int b)
+    {
+        throw new SqlFunctionInvokeException();
+    }
+
+    @Ext(dbType = DbType.H2, function = "TRUNCATE({},0)")
+    @Ext(dbType = DbType.MySQL, function = "TRUNCATE({},0)")
+    public static <T extends Number> long truncate(T a)
     {
         throw new SqlFunctionInvokeException();
     }
@@ -1326,21 +1570,21 @@ public class SqlFunctions
 
     @Ext(dbType = DbType.H2, function = "SUBSTR({},{})")
     @Ext(dbType = DbType.MySQL, function = "SUBSTR({},{})")
-    public static String subStr(String string, int pos)
+    public static String subString(String string, int pos)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "SUBSTR({},{},{})")
     @Ext(dbType = DbType.MySQL, function = "SUBSTR({},{},{})")
-    public static String subStr(String string, int pos, int length)
+    public static String subString(String string, int pos, int length)
     {
         throw new SqlFunctionInvokeException();
     }
 
     @Ext(dbType = DbType.H2, function = "SUBSTRING_INDEX({},{},{})")
     @Ext(dbType = DbType.MySQL, function = "SUBSTRING_INDEX({},{},{})")
-    public static String subStrIndex(String string, String delimiter, int length)
+    public static String subStringIndex(String string, String delimiter, int length)
     {
         throw new SqlFunctionInvokeException();
     }
@@ -1380,13 +1624,13 @@ public class SqlFunctions
         throw new SqlFunctionInvokeException();
     }
 
-    @SafeVarargs
-    @Ext(dbType = DbType.H2, function = "GROUP_CONCAT({properties} SEPARATOR {delimiter})")
-    @Ext(dbType = DbType.MySQL, function = "GROUP_CONCAT({properties} SEPARATOR {delimiter})")
-    public static <T> String groupJoin(String delimiter, T... properties)
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    @SafeVarargs
+//    @Ext(dbType = DbType.H2, function = "GROUP_CONCAT({properties} SEPARATOR {delimiter})")
+//    @Ext(dbType = DbType.MySQL, function = "GROUP_CONCAT({properties} SEPARATOR {delimiter})")
+//    public static <T> String groupJoin(String delimiter, T... properties)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     // endregion
 
@@ -1413,19 +1657,24 @@ public class SqlFunctions
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "CAST({} AS {})")
-    @Ext(dbType = DbType.MySQL, function = "CAST({} AS {})")
-    public static <T> T cast(Object value, SqlTypes.SqlType<T> targetType)
+    public static <T> T cast(Object value, Class<T> targetType)
     {
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "CONVERT({targetType},{value})")
-    @Ext(dbType = DbType.MySQL, function = "CONVERT({targetType},{value})")
-    public static <T> T convert(Object value, SqlTypes.SqlType<T> targetType)
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    @Ext(dbType = DbType.H2, function = "CAST({} AS {})")
+//    @Ext(dbType = DbType.MySQL, function = "CAST({} AS {})")
+//    public static <T> T cast(Object value, SqlTypes.SqlType<T> targetType)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
+
+//    @Ext(dbType = DbType.H2, function = "CONVERT({targetType},{value})")
+//    @Ext(dbType = DbType.MySQL, function = "CONVERT({targetType},{value})")
+//    public static <T> T convert(Object value, SqlTypes.SqlType<T> targetType)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     // endregion
 }

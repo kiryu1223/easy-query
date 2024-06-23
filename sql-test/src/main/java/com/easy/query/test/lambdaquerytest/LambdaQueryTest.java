@@ -215,7 +215,7 @@ public class LambdaQueryTest extends LambdaBaseTest
                 .where(a -> a.getNumber() == 800)
                 .select(s -> new TempResult()
                 {
-                    int id = SqlFunctions.cast(s.getId(), SqlTypes.signed());
+                    int id = SqlFunctions.cast(s.getId(), int.class);
                     int year = SqlFunctions.getYear(s.getCreated());
                     String userName = s.getUserName();
                 });
@@ -250,7 +250,7 @@ public class LambdaQueryTest extends LambdaBaseTest
         LQuery<? extends TempResult> select = elq.queryable(DefTable.class)
                 .groupBy(g -> new Object()
                 {
-                    int pp = SqlFunctions.cast(g.getId(), SqlTypes.signed());
+                    int pp = SqlFunctions.cast(g.getId(), int.class);
                     boolean kk = g.getEnable();
                 })
                 .having(h -> h.key.pp == 110)
@@ -269,7 +269,7 @@ public class LambdaQueryTest extends LambdaBaseTest
     public void q9()
     {
         LQuery<? extends TempResult> select = elq.queryable(DefTable.class)
-                .groupBy(g -> SqlFunctions.cast(g.getId(), SqlTypes.signed()))
+                .groupBy(g -> SqlFunctions.cast(g.getId(), int.class))
                 .having(h -> h.key == 110)
                 .select(s -> new TempResult()
                 {

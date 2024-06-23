@@ -46,6 +46,16 @@ public class ExpressionUtil
         }
     }
 
+    public static boolean isSetter(Method method)
+    {
+        return isVoid(method.getReturnType()) && method.getParameterCount() == 1 && method.getName().startsWith("set");
+    }
+
+    public static boolean isGetter(Method method)
+    {
+        return !isVoid(method.getReturnType()) && method.getParameterCount() == 0 && (method.getName().startsWith("get")||method.getName().startsWith("is"));
+    }
+
     public static boolean isGroupKey(List<ParameterExpression> parameters, Expression expression)
     {
         if (expression instanceof FieldSelectExpression)

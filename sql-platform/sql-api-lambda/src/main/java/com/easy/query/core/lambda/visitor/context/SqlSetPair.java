@@ -3,7 +3,7 @@ package com.easy.query.core.lambda.visitor.context;
 import com.easy.query.core.basic.api.update.ClientExpressionUpdatable;
 import com.easy.query.core.func.SQLFunc;
 
-public class SqlSetPair
+public class SqlSetPair extends SqlContext
 {
     private String property;
     private SqlContext right;
@@ -28,9 +28,8 @@ public class SqlSetPair
         this.right = right;
     }
 
-    public void updatable(ClientExpressionUpdatable<?> client)
+    public void updatable(ClientExpressionUpdatable<?> client,SQLFunc fx)
     {
-        SQLFunc fx = client.getExpressionContext().getRuntimeContext().fx();
         if(right instanceof SqlPropertyContext)
         {
             SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) right;
@@ -44,7 +43,7 @@ public class SqlSetPair
         else if (right instanceof SqlFuncContext)
         {
             SqlFuncContext sqlFuncContext = (SqlFuncContext) right;
-            client.setSQLFunction(property,sqlFuncContext.get(fx));
+            client.setSQLFunction(property,sqlFuncContext.getFunction(fx));
         }
     }
 }
