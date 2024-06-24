@@ -114,8 +114,7 @@ public class QueryWhereVisitor extends Visitor
         {
             ParensExpression parensExpression = (ParensExpression) expression;
             SqlContext round = round(parensExpression.getExpr(), parameters);
-            round.setHasParens(true);
-            return round;
+            return new SqlParensContext(round);
         }
         throw new RuntimeException("不支持的表达式 " + expression.getClass().getSimpleName() + " " + expression);
     }

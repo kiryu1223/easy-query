@@ -41,38 +41,10 @@ public class SqlBinaryContext extends SqlContext
         SQLFunc fx = filter.getRuntimeContext().fx();
         if (operatorType == OperatorType.AND || operatorType == OperatorType.OR)
         {
-            if(isHasParens())
-            {
-                if (operatorType == OperatorType.AND)
-                {
-                    wherePredicate.and(() ->
-                    {
-                        left.revWhere(wherePredicate);
-                        right.revWhere(wherePredicate);
-                    });
-                }
-                else
-                {
-                    wherePredicate.or(() ->
-                    {
-                        left.revWhere(wherePredicate);
-                        right.revWhere(wherePredicate);
-                    });
-                }
-            }
-            else
-            {
-                left.revWhere(wherePredicate);
-                if (operatorType == OperatorType.AND)
-                {
-                    wherePredicate.and();
-                }
-                else
-                {
-                    wherePredicate.or();
-                }
-                right.revWhere(wherePredicate);
-            }
+            left.revWhere(wherePredicate);
+            if (operatorType == OperatorType.AND) wherePredicate.and();
+            else wherePredicate.or();
+            right.revWhere(wherePredicate);
         }
         else if (operatorType == OperatorType.EQ || operatorType == OperatorType.NE
                 || operatorType == OperatorType.GE || operatorType == OperatorType.GT
@@ -104,7 +76,7 @@ public class SqlBinaryContext extends SqlContext
                 if (right instanceof SqlValueContext)
                 {
                     SqlValueContext rightValue = (SqlValueContext) right;
-                    compareValueAndValue(filter, leftValue.getValue(), rightValue.getValue(), operatorType);
+                    compareValueAndValue(wherePredicate, leftValue.getValue(), rightValue.getValue(), operatorType);
                 }
                 else if (right instanceof SqlPropertyContext)
                 {
@@ -144,6 +116,41 @@ public class SqlBinaryContext extends SqlContext
             }
         }
     }
+
+//    private void addParen(WherePredicate<?> wherePredicate, SqlContext left)
+//    {
+//        switch (operatorType)
+//        {
+//            case AND:
+//                if (left.isHasParens())
+//                {
+//                    wherePredicate.and(() ->
+//                    {
+//                        left.revWhere(wherePredicate);
+//                    });
+//                }
+//                else
+//                {
+//                    wherePredicate.and();
+//                    left.revWhere(wherePredicate);
+//                }
+//                break;
+//            case OR:
+//                if (left.isHasParens())
+//                {
+//                    wherePredicate.or(() ->
+//                    {
+//                        left.revWhere(wherePredicate);
+//                    });
+//                }
+//                else
+//                {
+//                    wherePredicate.or();
+//                    left.revWhere(wherePredicate);
+//                }
+//                break;
+//        }
+//    }
 
     private OperatorType revOp(OperatorType operatorType)
     {

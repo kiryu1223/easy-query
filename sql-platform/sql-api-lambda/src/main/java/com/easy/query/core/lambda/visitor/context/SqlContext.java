@@ -4,6 +4,7 @@ package com.easy.query.core.lambda.visitor.context;
 import com.easy.query.core.expression.builder.Filter;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
+import com.easy.query.core.func.SQLFunc;
 import com.easy.query.core.func.SQLFunction;
 import io.github.kiryu1223.expressionTree.expressions.OperatorType;
 
@@ -100,27 +101,32 @@ public abstract class SqlContext
         }
     }
 
-    protected void compareValueAndValue(Filter filter, Object value1, Object value2, OperatorType operatorType)
+    protected void compareValueAndValue(WherePredicate<?> wherePredicate, Object value1, Object value2, OperatorType operatorType)
     {
-        String op;
-        if (operatorType == OperatorType.EQ)
+        SQLFunc fx = wherePredicate.fx();
+        WherePredicate<?> wherePredicate1 = wherePredicate.sqlNativeSegment("");
+        SQLFunction sqlFunction = fx.constValue(value1);
+        switch (operatorType)
         {
-            op = "=";
+            case EQ:
+                wherePredicate.eq(sqlFunction, value2);
+                break;
+            case NE:
+                wherePredicate.ne(sqlFunction, value2);
+                break;
+            case LT:
+                wherePredicate.lt(sqlFunction, value2);
+                break;
+            case GT:
+                wherePredicate.gt(sqlFunction, value2);
+                break;
+            case LE:
+                wherePredicate.le(sqlFunction, value2);
+                break;
+            case GE:
+                wherePredicate.ge(sqlFunction, value2);
+                break;
         }
-        else if (operatorType == OperatorType.NE)
-        {
-            op = "<>";
-        }
-        else
-        {
-            op = operatorType.getOperator();
-        }
-
-        filter.sqlNativeSegment("{0} " + op + " {1}", s ->
-        {
-            s.value(value1);
-            s.value(value2);
-        });
     }
 
     protected void compareFuncAndValue(Filter filter, EntitySQLTableOwner<?> table1, SQLFunction function, Object value, OperatorType operatorType)
