@@ -1,6 +1,8 @@
 package com.easy.query.core.lambda.visitor.context;
 
 import com.easy.query.core.basic.api.update.ClientExpressionUpdatable;
+import com.easy.query.core.expression.builder.Filter;
+import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunc;
 
 public class SqlSetPair extends SqlContext

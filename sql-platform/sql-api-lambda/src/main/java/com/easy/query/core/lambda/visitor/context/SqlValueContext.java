@@ -1,5 +1,7 @@
 package com.easy.query.core.lambda.visitor.context;
 
+import com.easy.query.core.expression.builder.Filter;
+
 public class SqlValueContext extends SqlContext
 {
     private final Object value;

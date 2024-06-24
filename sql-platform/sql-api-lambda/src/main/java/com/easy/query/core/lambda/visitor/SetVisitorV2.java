@@ -17,13 +17,11 @@ import static com.easy.query.core.lambda.util.SqlUtil.fieldName;
 public class SetVisitorV2 extends Visitor
 {
     private final ClientExpressionUpdatable<?> client;
-    private final SQLFunc fx;
     private final EntitySQLTableOwner<?> owner;
 
     public SetVisitorV2(ClientExpressionUpdatable<?> client)
     {
         this.client = client;
-        this.fx = client.getExpressionContext().getRuntimeContext().fx();
         this.owner = client.getColumnSetter();
     }
 
@@ -31,6 +29,7 @@ public class SetVisitorV2 extends Visitor
     public void visit(LambdaExpression<?> lambdaExpression)
     {
         Expression body = lambdaExpression.getBody();
+        SQLFunc fx = client.getExpressionContext().getRuntimeContext().fx();
         if (body.getKind() == Kind.Block)
         {
             BlockExpression block = (BlockExpression) body;

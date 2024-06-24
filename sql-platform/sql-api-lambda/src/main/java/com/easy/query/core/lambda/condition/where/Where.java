@@ -6,6 +6,7 @@ import com.easy.query.core.basic.api.select.ClientQueryable;
 import com.easy.query.core.basic.api.select.ClientQueryable2;
 import com.easy.query.core.basic.api.select.provider.SQLExpressionProvider;
 import com.easy.query.core.basic.api.update.ClientExpressionUpdatable;
+import com.easy.query.core.expression.builder.core.SQLNative;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
 import com.easy.query.core.expression.parser.core.SQLTableOwner;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
@@ -17,6 +18,7 @@ import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Where extends Criteria
@@ -75,8 +77,8 @@ public class Where extends Criteria
     {
         SQLExpressionProvider<?> sqlExpressionProvider1 = queryable.getSQLExpressionProvider1();
         WherePredicate<?> wherePredicate1 = sqlExpressionProvider1.getWherePredicate(sqlExpressionProvider1.getWhereFilterContext());
-        List<EntitySQLTableOwner<?>> owners = Arrays.asList(wherePredicate1);
-        QueryWhereVisitor queryWhereVisitor = new QueryWhereVisitor(queryable, owners);
+        List<WherePredicate<?>> owners = Collections.singletonList(wherePredicate1);
+        QueryWhereVisitor queryWhereVisitor = new QueryWhereVisitor(owners);
         queryWhereVisitor.visit(expression);
     }
 
@@ -86,8 +88,8 @@ public class Where extends Criteria
         SQLExpressionProvider<?> sqlExpressionProvider2 = queryable.getSQLExpressionProvider2();
         WherePredicate<?> wherePredicate1 = sqlExpressionProvider1.getWherePredicate(sqlExpressionProvider1.getWhereFilterContext());
         WherePredicate<?> wherePredicate2 = sqlExpressionProvider2.getWherePredicate(sqlExpressionProvider2.getWhereFilterContext());
-        List<EntitySQLTableOwner<?>> owners = Arrays.asList(wherePredicate1, wherePredicate2);
-        QueryWhereVisitor queryWhereVisitor = new QueryWhereVisitor(queryable, owners);
+        List<WherePredicate<?>> owners = Arrays.asList(wherePredicate1, wherePredicate2);
+        QueryWhereVisitor queryWhereVisitor = new QueryWhereVisitor(owners);
         queryWhereVisitor.visit(expression);
     }
 }

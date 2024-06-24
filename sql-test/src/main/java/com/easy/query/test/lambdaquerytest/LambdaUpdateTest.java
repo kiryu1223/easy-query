@@ -1,6 +1,5 @@
 package com.easy.query.test.lambdaquerytest;
 
-import com.easy.query.api.lambda.crud.read.LQuery;
 import com.easy.query.api.lambda.crud.read.LQuery2;
 import com.easy.query.api.lambda.crud.update.LUpdate;
 import com.easy.query.api.lambda.sqlext.SqlFunctions;
@@ -33,9 +32,11 @@ public class LambdaUpdateTest extends LambdaBaseTest
     @Test
     public void u2()
     {
-        LQuery2<DefTable,DefTableLeft1> where = elq.queryable(DefTable.class, DefTableLeft1.class)
-                .where((w,b)-> w.getId() != "1" && w.getNumber() > b.getNumber())
-                .where((a,b)->1==1);
+        LQuery2<DefTable, DefTableLeft1> where = elq.queryable(DefTable.class, DefTableLeft1.class)
+                .where((w, b) -> w.getEnable()
+                        && SqlFunctions.cast(w.getOptions(), int.class) > b.getNumber()
+                        && (SqlFunctions.toLower(SqlFunctions.subString(w.getAvatar(), 2 + b.getNumber())) == "haha"
+                        || 1 == 1));
         System.out.println(where.toSQL());
     }
 }

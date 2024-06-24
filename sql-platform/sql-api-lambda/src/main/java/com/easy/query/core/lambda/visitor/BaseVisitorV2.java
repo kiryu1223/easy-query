@@ -1,30 +1,22 @@
-package com.easy.query.core.lambda.visitor.context;
+package com.easy.query.core.lambda.visitor;
 
-
+import com.easy.query.api.lambda.sqlext.SqlFunctions;
 import com.easy.query.core.expression.builder.Filter;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
-import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunction;
-import io.github.kiryu1223.expressionTree.expressions.OperatorType;
+import com.easy.query.core.lambda.visitor.context.*;
+import io.github.kiryu1223.expressionTree.expressions.*;
 
-public abstract class SqlContext
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
+
+import static com.easy.query.core.lambda.util.ExpressionUtil.hasParameter;
+import static com.easy.query.core.lambda.util.ExpressionUtil.isVoid;
+import static com.easy.query.core.lambda.util.SqlUtil.fieldName;
+
+public abstract class BaseVisitorV2 extends Visitor
 {
-    private boolean hasParens = false;
-
-    public boolean isHasParens()
-    {
-        return hasParens;
-    }
-
-    public void setHasParens(boolean hasParens)
-    {
-        this.hasParens = hasParens;
-    }
-
-    public void revWhere(WherePredicate<?> wherePredicate)
-    {
-    }
-
     protected void comparePropertyAndValue(Filter filter, EntitySQLTableOwner<?> tableOwner, String Property, Object value, OperatorType operatorType)
     {
         switch (operatorType)
@@ -195,6 +187,26 @@ public abstract class SqlContext
             case GE:
                 filter.ge(table1.getTable(), function1, table2.getTable(), function2);
                 break;
+        }
+    }
+
+    protected OperatorType revOp(OperatorType operatorType)
+    {
+        switch (operatorType)
+        {
+            case EQ:
+            case NE:
+                return operatorType;
+            case GE:
+                return OperatorType.LE;
+            case LE:
+                return OperatorType.GE;
+            case GT:
+                return OperatorType.LT;
+            case LT:
+                return OperatorType.GT;
+            default:
+                throw new RuntimeException();
         }
     }
 }

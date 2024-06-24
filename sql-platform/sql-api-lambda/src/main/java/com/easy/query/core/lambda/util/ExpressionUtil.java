@@ -53,7 +53,7 @@ public class ExpressionUtil
 
     public static boolean isGetter(Method method)
     {
-        return !isVoid(method.getReturnType()) && method.getParameterCount() == 0 && (method.getName().startsWith("get")||method.getName().startsWith("is"));
+        return !isVoid(method.getReturnType()) && method.getParameterCount() == 0 && (method.getName().startsWith("get") || method.getName().startsWith("is"));
     }
 
     public static boolean isGroupKey(List<ParameterExpression> parameters, Expression expression)
@@ -152,5 +152,17 @@ public class ExpressionUtil
         }
 
         return paramMatcher;
+    }
+
+    public static boolean isAndorOr(OperatorType operatorType)
+    {
+        return operatorType == OperatorType.AND || operatorType == OperatorType.OR;
+    }
+
+    public static boolean isCompareOperator(OperatorType op)
+    {
+        return op == OperatorType.EQ || op == OperatorType.NE
+                || op == OperatorType.GE || op == OperatorType.GT
+                || op == OperatorType.LE || op == OperatorType.LT;
     }
 }
