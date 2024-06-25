@@ -6,22 +6,17 @@ import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunc;
 import com.easy.query.core.func.SQLFunction;
+import com.easy.query.core.func.column.ColumnFuncSelector;
+import com.easy.query.core.func.def.enums.NumberCalcEnum;
 import io.github.kiryu1223.expressionTree.expressions.OperatorType;
+
+import java.util.Collection;
+
+import static com.easy.query.core.lambda.util.ExpressionUtil.isArithmeticOperator;
+import static com.easy.query.core.lambda.util.ExpressionUtil.isCompareOperator;
 
 public abstract class SqlContext
 {
-    private boolean hasParens = false;
-
-    public boolean isHasParens()
-    {
-        return hasParens;
-    }
-
-    public void setHasParens(boolean hasParens)
-    {
-        this.hasParens = hasParens;
-    }
-
     public void revWhere(WherePredicate<?> wherePredicate)
     {
     }
@@ -47,6 +42,32 @@ public abstract class SqlContext
                 break;
             case GE:
                 filter.ge(tableOwner.getTable(), Property, value);
+                break;
+        }
+    }
+
+    protected void compareValueAndProperty(Filter filter, Object value, EntitySQLTableOwner<?> tableOwner, String Property, OperatorType operatorType)
+    {
+        SQLFunc fx = filter.getRuntimeContext().fx();
+        switch (operatorType)
+        {
+            case EQ:
+                filter.eq(tableOwner.getTable(), fx.constValue(o -> o.value(value)), tableOwner.getTable(), Property);
+                break;
+            case NE:
+                filter.ne(tableOwner.getTable(), fx.constValue(o -> o.value(value)), tableOwner.getTable(), Property);
+                break;
+            case LT:
+                filter.lt(tableOwner.getTable(), fx.constValue(o -> o.value(value)), tableOwner.getTable(), Property);
+                break;
+            case GT:
+                filter.gt(tableOwner.getTable(), fx.constValue(o -> o.value(value)), tableOwner.getTable(), Property);
+                break;
+            case LE:
+                filter.le(tableOwner.getTable(), fx.constValue(o -> o.value(value)), tableOwner.getTable(), Property);
+                break;
+            case GE:
+                filter.ge(tableOwner.getTable(), fx.constValue(o -> o.value(value)), tableOwner.getTable(), Property);
                 break;
         }
     }
@@ -104,7 +125,6 @@ public abstract class SqlContext
     protected void compareValueAndValue(WherePredicate<?> wherePredicate, Object value1, Object value2, OperatorType operatorType)
     {
         SQLFunc fx = wherePredicate.fx();
-        WherePredicate<?> wherePredicate1 = wherePredicate.sqlNativeSegment("");
         SQLFunction sqlFunction = fx.constValue(value1);
         switch (operatorType)
         {
@@ -154,53 +174,160 @@ public abstract class SqlContext
         }
     }
 
-    protected void compareFuncAndProperty(Filter filter, EntitySQLTableOwner<?> table1, SQLFunction function, EntitySQLTableOwner<?> table2, String Property, OperatorType operatorType)
+    protected void compareValueAndFunc(Filter filter, Object value, EntitySQLTableOwner<?> table1, SQLFunction function, OperatorType operatorType)
     {
+        SQLFunc fx = filter.getRuntimeContext().fx();
         switch (operatorType)
         {
             case EQ:
-                filter.eq(table1.getTable(), function, table2.getTable(), Property);
+                filter.eq(table1.getTable(), fx.constValue(a -> a.value(value)), table1.getTable(), function);
                 break;
             case NE:
-                filter.ne(table1.getTable(), function, table2.getTable(), Property);
+                filter.ne(table1.getTable(), fx.constValue(a -> a.value(value)), table1.getTable(), function);
                 break;
             case LT:
-                filter.lt(table1.getTable(), function, table2.getTable(), Property);
+                filter.lt(table1.getTable(), fx.constValue(a -> a.value(value)), table1.getTable(), function);
                 break;
             case GT:
-                filter.gt(table1.getTable(), function, table2.getTable(), Property);
+                filter.gt(table1.getTable(), fx.constValue(a -> a.value(value)), table1.getTable(), function);
                 break;
             case LE:
-                filter.le(table1.getTable(), function, table2.getTable(), Property);
+                filter.le(table1.getTable(), fx.constValue(a -> a.value(value)), table1.getTable(), function);
                 break;
             case GE:
-                filter.ge(table1.getTable(), function, table2.getTable(), Property);
+                filter.ge(table1.getTable(), fx.constValue(a -> a.value(value)), table1.getTable(), function);
                 break;
         }
     }
 
-    protected void compareFuncAndFunc(Filter filter, EntitySQLTableOwner<?> table1, SQLFunction function1, EntitySQLTableOwner<?> table2, SQLFunction function2, OperatorType operatorType)
+    protected void compareFuncAndProperty(Filter filter, SQLFunction function, EntitySQLTableOwner<?> table, String Property, OperatorType operatorType)
     {
         switch (operatorType)
         {
             case EQ:
-                filter.eq(table1.getTable(), function1, table2.getTable(), function2);
+                filter.eq(table.getTable(), function, table.getTable(), Property);
                 break;
             case NE:
-                filter.ne(table1.getTable(), function1, table2.getTable(), function2);
+                filter.ne(table.getTable(), function, table.getTable(), Property);
                 break;
             case LT:
-                filter.lt(table1.getTable(), function1, table2.getTable(), function2);
+                filter.lt(table.getTable(), function, table.getTable(), Property);
                 break;
             case GT:
-                filter.gt(table1.getTable(), function1, table2.getTable(), function2);
+                filter.gt(table.getTable(), function, table.getTable(), Property);
                 break;
             case LE:
-                filter.le(table1.getTable(), function1, table2.getTable(), function2);
+                filter.le(table.getTable(), function, table.getTable(), Property);
                 break;
             case GE:
-                filter.ge(table1.getTable(), function1, table2.getTable(), function2);
+                filter.ge(table.getTable(), function, table.getTable(), Property);
                 break;
+        }
+    }
+
+    protected void compareFuncAndFunc(Filter filter, EntitySQLTableOwner<?> table, SQLFunction function1, SQLFunction function2, OperatorType operatorType)
+    {
+        switch (operatorType)
+        {
+            case EQ:
+                filter.eq(table.getTable(), function1, table.getTable(), function2);
+                break;
+            case NE:
+                filter.ne(table.getTable(), function1, table.getTable(), function2);
+                break;
+            case LT:
+                filter.lt(table.getTable(), function1, table.getTable(), function2);
+                break;
+            case GT:
+                filter.gt(table.getTable(), function1, table.getTable(), function2);
+                break;
+            case LE:
+                filter.le(table.getTable(), function1, table.getTable(), function2);
+                break;
+            case GE:
+                filter.ge(table.getTable(), function1, table.getTable(), function2);
+                break;
+        }
+    }
+
+    protected NumberCalcEnum opTrans(OperatorType type)
+    {
+        switch (type)
+        {
+            case PLUS:
+                return NumberCalcEnum.NUMBER_ADD;
+            case MINUS:
+                return NumberCalcEnum.NUMBER_SUBTRACT;
+            case MUL:
+                return NumberCalcEnum.NUMBER_MULTIPLY;
+            case DIV:
+                return NumberCalcEnum.NUMBER_DEVIDE;
+            default:
+                throw new RuntimeException("不支持的运算符: " + type.getOperator());
+        }
+    }
+
+    protected void roundSqlContext(SqlContext context, ColumnFuncSelector s, SQLFunc fx)
+    {
+        if (context instanceof SqlPropertyContext)
+        {
+            SqlPropertyContext propertyContext = (SqlPropertyContext) context;
+            s.column(propertyContext.getTableOwner(), propertyContext.getProperty());
+        }
+        else if (context instanceof SqlValueContext)
+        {
+            SqlValueContext valueContext = (SqlValueContext) context;
+            Object value = valueContext.getValue();
+            if (value instanceof Collection<?>)
+            {
+                Collection<?> vs = (Collection<?>) value;
+                s.collection(vs);
+            }
+            else
+            {
+                s.value(valueContext.getValue());
+            }
+        }
+        else if (context instanceof SqlFuncContext)
+        {
+            SqlFuncContext funcContext = (SqlFuncContext) context;
+            SQLFunction function = funcContext.getFunction(fx);
+            s.sqlFunc(function);
+        }
+        else if (context instanceof SqlBinaryContext)
+        {
+            SqlBinaryContext sqlBinaryContext = (SqlBinaryContext) context;
+            OperatorType operatorType = sqlBinaryContext.getOperatorType();
+            SqlContext left = sqlBinaryContext.getLeft();
+            SqlContext right = sqlBinaryContext.getRight();
+            if (isArithmeticOperator(operatorType))
+            {
+                SQLFunction sqlFunction = fx.numberCalc(a ->
+                        {
+                            roundSqlContext(left, a, fx);
+                            roundSqlContext(right, a, fx);
+                        },
+                        opTrans(operatorType)
+                );
+                s.sqlFunc(sqlFunction);
+            }
+//            else if (isCompareOperator(operatorType))
+//            {
+//
+//            }
+            else
+            {
+                throw new RuntimeException(sqlBinaryContext + " " + operatorType.getOperator());
+            }
+        }
+        else if (context instanceof SqlParensContext)
+        {
+            SqlParensContext sqlParensContext = (SqlParensContext) context;
+            s.sqlFunc(fx.constValue(c -> roundSqlContext(sqlParensContext.getContext(), c, fx)));
+        }
+        else
+        {
+            throw new RuntimeException(context.toString());
         }
     }
 }

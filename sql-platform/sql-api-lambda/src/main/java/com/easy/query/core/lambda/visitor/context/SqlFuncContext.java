@@ -8,11 +8,8 @@ import com.easy.query.core.func.column.ColumnFuncSelector;
 import com.easy.query.core.func.def.enums.DateTimeDurationEnum;
 import com.easy.query.core.func.def.enums.DateTimeUnitEnum;
 import com.easy.query.core.func.def.enums.MathMethodEnum;
-import com.easy.query.core.func.def.enums.NumberCalcEnum;
-import io.github.kiryu1223.expressionTree.expressions.OperatorType;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -304,7 +301,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "count":
@@ -400,7 +397,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addHours":
@@ -413,7 +410,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addMinutes":
@@ -426,7 +423,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addSeconds":
@@ -439,7 +436,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addMicroSeconds":
@@ -452,7 +449,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addMilliSeconds":
@@ -465,7 +462,7 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addNanoSeconds":
@@ -478,57 +475,35 @@ public class SqlFuncContext extends SqlContext
                     }
                     else
                     {
-                        throw new RuntimeException();
+                        throw new RuntimeException(methodName + "函数的第二个参数必须是可求值的");
                     }
                 }
                 case "addMonths":
-                {
                     return fx.plusDateTimeMonths(transHasArgSqlFunction(fx));
-                }
                 case "addYears":
-                {
                     return fx.plusDateTimeYears(transHasArgSqlFunction(fx));
-                }
                 case "rightPad":
-                {
                     return fx.rightPad(transHasArgSqlFunction(fx));
-                }
                 case "replace":
-                {
                     return fx.replace(transHasArgSqlFunction(fx));
-                }
                 case "sum":
-                {
                     return fx.sum(transHasArgSqlFunction(fx));
-                }
                 case "compare":
-                {
                     return fx.stringCompareTo(transHasArgSqlFunction(fx));
-                }
                 case "subString":
-                {
                     return fx.subString(transHasArgSqlFunction(fx));
-                }
                 case "trim":
-                {
                     return fx.trim(transHasArgSqlFunction(fx));
-                }
                 case "toLower":
-                {
                     return fx.toLower(transHasArgSqlFunction(fx));
-                }
                 case "toUpper":
-                {
                     return fx.toUpper(transHasArgSqlFunction(fx));
-                }
                 case "trimStart":
-                {
                     return fx.trimStart(transHasArgSqlFunction(fx));
-                }
                 case "trimEnd":
-                {
                     return fx.trimEnd(transHasArgSqlFunction(fx));
-                }
+                case "ifNull":
+                    return fx.nullOrDefault(transHasArgSqlFunction(fx));
             }
             throw new RuntimeException("非法的sql函数");
         }
@@ -568,70 +543,6 @@ public class SqlFuncContext extends SqlContext
         };
     }
 
-    private void roundSqlContext(SqlContext context, ColumnFuncSelector s, SQLFunc fx)
-    {
-        if (context instanceof SqlPropertyContext)
-        {
-            SqlPropertyContext propertyContext = (SqlPropertyContext) context;
-            s.column(propertyContext.getTableOwner(), propertyContext.getProperty());
-        }
-        else if (context instanceof SqlValueContext)
-        {
-            SqlValueContext valueContext = (SqlValueContext) context;
-            Object value = valueContext.getValue();
-            if (value instanceof Collection<?>)
-            {
-                Collection<?> vs = (Collection<?>) value;
-                s.collection(vs);
-            }
-            else
-            {
-                s.value(valueContext.getValue());
-            }
-        }
-        else if (context instanceof SqlFuncContext)
-        {
-            SqlFuncContext funcContext = (SqlFuncContext) context;
-            SQLFunction function = funcContext.getFunction(fx);
-            s.sqlFunc(function);
-        }
-        else if (context instanceof SqlBinaryContext)
-        {
-            SqlBinaryContext sqlBinaryContext = (SqlBinaryContext) context;
-            OperatorType operatorType = sqlBinaryContext.getOperatorType();
-            SqlContext left = sqlBinaryContext.getLeft();
-            SqlContext right = sqlBinaryContext.getRight();
-            SQLFunction sqlFunction = fx.numberCalc(a ->
-                    {
-                        roundSqlContext(left, a, fx);
-                        roundSqlContext(right, a, fx);
-                    },
-                    opTrans(operatorType)
-            );
-            s.sqlFunc(sqlFunction);
-        }
-        else
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    private NumberCalcEnum opTrans(OperatorType type)
-    {
-        switch (type)
-        {
-            case PLUS:
-                return NumberCalcEnum.NUMBER_ADD;
-            case MINUS:
-                return NumberCalcEnum.NUMBER_SUBTRACT;
-            case MUL:
-                return NumberCalcEnum.NUMBER_MULTIPLY;
-            case DIV:
-                return NumberCalcEnum.NUMBER_DEVIDE;
-            default:
-                throw new RuntimeException(type.getOperator());
-        }
-    }
 
     @Override
     public void revWhere(WherePredicate<?> wherePredicate)

@@ -1636,12 +1636,12 @@ public class SqlFunctions
 
     // region [控制流程]
 
-    @Ext(dbType = DbType.H2, function = "IF({},{},{})")
-    @Ext(dbType = DbType.MySQL, function = "IF({},{},{})")
-    public static <T> T If(boolean condition, T truePart, T falsePart)
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    @Ext(dbType = DbType.H2, function = "IF({},{},{})")
+//    @Ext(dbType = DbType.MySQL, function = "IF({},{},{})")
+//    public static <T> T If(boolean condition, T truePart, T falsePart)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     @Ext(dbType = DbType.H2, function = "IFNULL({},{})")
     @Ext(dbType = DbType.MySQL, function = "IFNULL({},{})")
@@ -1650,12 +1650,12 @@ public class SqlFunctions
         throw new SqlFunctionInvokeException();
     }
 
-    @Ext(dbType = DbType.H2, function = "NULLIF({},{})")
-    @Ext(dbType = DbType.MySQL, function = "NULLIF({},{})")
-    public static <T> T nullIf(T ifNotEq, T t2)
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    @Ext(dbType = DbType.H2, function = "NULLIF({},{})")
+//    @Ext(dbType = DbType.MySQL, function = "NULLIF({},{})")
+//    public static <T> T nullIf(T ifNotEq, T t2)
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     public static <T> T cast(Object value, Class<T> targetType)
     {

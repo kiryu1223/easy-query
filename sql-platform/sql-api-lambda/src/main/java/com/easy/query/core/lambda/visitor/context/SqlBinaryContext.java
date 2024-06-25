@@ -6,6 +6,9 @@ import com.easy.query.core.func.SQLFunc;
 import com.easy.query.core.func.SQLFunction;
 import io.github.kiryu1223.expressionTree.expressions.OperatorType;
 
+import static com.easy.query.core.lambda.util.ExpressionUtil.isAndorOr;
+import static com.easy.query.core.lambda.util.ExpressionUtil.isCompareOperator;
+
 public class SqlBinaryContext extends SqlContext
 {
     private final OperatorType operatorType;
@@ -39,16 +42,20 @@ public class SqlBinaryContext extends SqlContext
     {
         Filter filter = wherePredicate.getFilter();
         SQLFunc fx = filter.getRuntimeContext().fx();
-        if (operatorType == OperatorType.AND || operatorType == OperatorType.OR)
+        if (isAndorOr(operatorType))
         {
             left.revWhere(wherePredicate);
-            if (operatorType == OperatorType.AND) wherePredicate.and();
-            else wherePredicate.or();
+            if (operatorType == OperatorType.AND)
+            {
+                wherePredicate.and();
+            }
+            else
+            {
+                wherePredicate.or();
+            }
             right.revWhere(wherePredicate);
         }
-        else if (operatorType == OperatorType.EQ || operatorType == OperatorType.NE
-                || operatorType == OperatorType.GE || operatorType == OperatorType.GT
-                || operatorType == OperatorType.LT || operatorType == OperatorType.LE)
+        else if (isCompareOperator(operatorType))
         {
             if (left instanceof SqlPropertyContext) // 左侧是字段
             {
@@ -69,8 +76,27 @@ public class SqlBinaryContext extends SqlContext
                     SQLFunction function = sqlFuncContext.getFunction(fx);
                     comparePropertyAndFunc(filter, leftProperty.getTableOwner(), leftProperty.getProperty(), function, operatorType);
                 }
+                else if (right instanceof SqlBinaryContext)
+                {
+                    SqlBinaryContext binaryContext = (SqlBinaryContext) right;
+                    SQLFunction binaryRight = fx.numberCalc(a ->
+                    {
+                        roundSqlContext(binaryContext.getLeft(), a, fx);
+                        roundSqlContext(binaryContext.getRight(), a, fx);
+                    }, opTrans(binaryContext.getOperatorType()));
+                    comparePropertyAndFunc(filter, leftProperty.getTableOwner(), leftProperty.getProperty(), binaryRight, operatorType);
+                }
+                else if (right instanceof SqlParensContext)
+                {
+                    SQLFunction parens = fx.constValue(c -> roundSqlContext(((SqlParensContext) right).getContext(), c, fx));
+                    comparePropertyAndValue(filter, leftProperty.getTableOwner(), leftProperty.getProperty(), parens, operatorType);
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
             }
-            else if (left instanceof SqlValueContext)
+            else if (left instanceof SqlValueContext)// 左侧是值
             {
                 SqlValueContext leftValue = (SqlValueContext) left;
                 if (right instanceof SqlValueContext)
@@ -81,18 +107,38 @@ public class SqlBinaryContext extends SqlContext
                 else if (right instanceof SqlPropertyContext)
                 {
                     SqlPropertyContext rightProperty = (SqlPropertyContext) right;
-                    comparePropertyAndValue(filter, rightProperty.getTableOwner(), rightProperty.getProperty(), leftValue.getValue(), revOp(operatorType));
+                    compareValueAndProperty(filter, leftValue.getValue(), rightProperty.getTableOwner(), rightProperty.getProperty(), operatorType);
                 }
                 else if (right instanceof SqlFuncContext)
                 {
                     SqlFuncContext sqlFuncContext = (SqlFuncContext) right;
                     SQLFunction function = sqlFuncContext.getFunction(fx);
-                    compareFuncAndValue(filter, wherePredicate, function, leftValue.getValue(), revOp(operatorType));
+                    compareValueAndFunc(filter, leftValue.getValue(), wherePredicate, function, operatorType);
+                }
+                else if (right instanceof SqlBinaryContext)
+                {
+                    SqlBinaryContext binaryContext = (SqlBinaryContext) right;
+                    SQLFunction binaryRight = fx.numberCalc(a ->
+                    {
+                        roundSqlContext(binaryContext.getLeft(), a, fx);
+                        roundSqlContext(binaryContext.getRight(), a, fx);
+                    }, opTrans(binaryContext.getOperatorType()));
+                    compareValueAndFunc(filter, leftValue.getValue(), wherePredicate, binaryRight, operatorType);
+                }
+                else if (right instanceof SqlParensContext)
+                {
+                    SQLFunction parens = fx.constValue(c -> roundSqlContext(((SqlParensContext) right).getContext(), c, fx));
+                    compareValueAndFunc(filter, leftValue.getValue(), wherePredicate, parens, operatorType);
+                }
+                else
+                {
+                    throw new RuntimeException();
                 }
             }
-            else if (left instanceof SqlFuncContext)
+            else if (left instanceof SqlFuncContext)// 左侧是函数
             {
                 SqlFuncContext leftFunc = (SqlFuncContext) left;
+                SQLFunction function = leftFunc.getFunction(fx);
                 if (right instanceof SqlValueContext)
                 {
                     SqlValueContext rightValue = (SqlValueContext) right;
@@ -101,13 +147,115 @@ public class SqlBinaryContext extends SqlContext
                 else if (right instanceof SqlPropertyContext)
                 {
                     SqlPropertyContext rightProperty = (SqlPropertyContext) right;
-                    compareFuncAndProperty(filter, wherePredicate, leftFunc.getFunction(fx), rightProperty.getTableOwner(), rightProperty.getProperty(), operatorType);
+                    compareFuncAndProperty(filter, leftFunc.getFunction(fx), rightProperty.getTableOwner(), rightProperty.getProperty(), operatorType);
                 }
                 else if (right instanceof SqlFuncContext)
                 {
                     SqlFuncContext sqlFuncContext = (SqlFuncContext) right;
-                    SQLFunction function = sqlFuncContext.getFunction(fx);
-                    compareFuncAndFunc(filter, wherePredicate, function, wherePredicate, function, operatorType);
+                    SQLFunction functionRight = sqlFuncContext.getFunction(fx);
+                    compareFuncAndFunc(filter, wherePredicate, function, functionRight, operatorType);
+                }
+                else if (right instanceof SqlBinaryContext)
+                {
+                    SqlBinaryContext binaryContext = (SqlBinaryContext) right;
+                    SQLFunction binaryRight = fx.numberCalc(a ->
+                    {
+                        roundSqlContext(binaryContext.getLeft(), a, fx);
+                        roundSqlContext(binaryContext.getRight(), a, fx);
+                    }, opTrans(binaryContext.getOperatorType()));
+                    compareFuncAndFunc(filter, wherePredicate, function, binaryRight, operatorType);
+                }
+                else if (right instanceof SqlParensContext)
+                {
+                    SQLFunction parens = fx.constValue(c -> roundSqlContext(((SqlParensContext) right).getContext(), c, fx));
+                    compareFuncAndFunc(filter,wherePredicate, function, parens, operatorType);
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
+            }
+            else if (left instanceof SqlBinaryContext)// 左侧是二元运算
+            {
+                SqlBinaryContext binaryContext = (SqlBinaryContext) left;
+                SQLFunction binary = fx.numberCalc(a ->
+                {
+                    roundSqlContext(binaryContext.getLeft(), a, fx);
+                    roundSqlContext(binaryContext.getRight(), a, fx);
+                }, opTrans(binaryContext.getOperatorType()));
+                if (right instanceof SqlPropertyContext)
+                {
+                    SqlPropertyContext propertyContext = (SqlPropertyContext) right;
+                    compareFuncAndProperty(filter, binary, propertyContext.getTableOwner(), propertyContext.getProperty(), operatorType);
+                }
+                else if (right instanceof SqlValueContext)
+                {
+                    SqlValueContext valueContext = (SqlValueContext) right;
+                    compareFuncAndValue(filter, wherePredicate, binary, valueContext.getValue(), operatorType);
+                }
+                else if (right instanceof SqlFuncContext)
+                {
+                    SqlFuncContext funcContext = (SqlFuncContext) right;
+                    compareFuncAndFunc(filter, wherePredicate, binary, funcContext.getFunction(fx), operatorType);
+                }
+                else if (right instanceof SqlBinaryContext)
+                {
+                    SqlBinaryContext rightBinaryContext = (SqlBinaryContext) right;
+                    SQLFunction binaryRight = fx.numberCalc(a ->
+                    {
+                        roundSqlContext(rightBinaryContext.getLeft(), a, fx);
+                        roundSqlContext(rightBinaryContext.getRight(), a, fx);
+                    }, opTrans(rightBinaryContext.getOperatorType()));
+                    compareFuncAndFunc(filter, wherePredicate, binary, binaryRight, operatorType);
+                }
+                else if (right instanceof SqlParensContext)
+                {
+                    SqlParensContext rightParens = (SqlParensContext) right;
+                    SQLFunction parens = fx.constValue(c -> roundSqlContext(rightParens.getContext(), c, fx));
+                    compareFuncAndFunc(filter, wherePredicate, binary, parens, operatorType);
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
+            }
+            else if (left instanceof SqlParensContext)// 左侧是括号
+            {
+                SqlParensContext leftParensContext = (SqlParensContext) left;
+                SQLFunction leftParens = fx.constValue(c -> roundSqlContext(leftParensContext.getContext(), c, fx));
+                if (right instanceof SqlPropertyContext)
+                {
+                    SqlPropertyContext propertyContext = (SqlPropertyContext) right;
+                    compareFuncAndProperty(filter, leftParens, propertyContext.getTableOwner(), propertyContext.getProperty(), operatorType);
+                }
+                else if (right instanceof SqlValueContext)
+                {
+                    SqlValueContext valueContext = (SqlValueContext) right;
+                    compareFuncAndValue(filter, wherePredicate, leftParens, valueContext.getValue(), operatorType);
+                }
+                else if (right instanceof SqlFuncContext)
+                {
+                    SqlFuncContext funcContext = (SqlFuncContext) right;
+                    compareFuncAndFunc(filter, wherePredicate, leftParens, funcContext.getFunction(fx), operatorType);
+                }
+                else if (right instanceof SqlBinaryContext)
+                {
+                    SqlBinaryContext binaryContext = (SqlBinaryContext) right;
+                    SQLFunction binaryRight = fx.numberCalc(a ->
+                    {
+                        roundSqlContext(binaryContext.getLeft(), a, fx);
+                        roundSqlContext(binaryContext.getRight(), a, fx);
+                    }, opTrans(binaryContext.getOperatorType()));
+                    compareFuncAndFunc(filter, wherePredicate, leftParens, binaryRight, operatorType);
+                }
+                else if (right instanceof SqlParensContext)
+                {
+                    SQLFunction rightParens = fx.constValue(c -> roundSqlContext(((SqlParensContext) right).getContext(), c, fx));
+                    compareFuncAndFunc(filter, wherePredicate, leftParens, rightParens, operatorType);
+                }
+                else
+                {
+                    throw new RuntimeException();
                 }
             }
             else
@@ -115,60 +263,9 @@ public class SqlBinaryContext extends SqlContext
                 throw new RuntimeException();
             }
         }
-    }
-
-//    private void addParen(WherePredicate<?> wherePredicate, SqlContext left)
-//    {
-//        switch (operatorType)
-//        {
-//            case AND:
-//                if (left.isHasParens())
-//                {
-//                    wherePredicate.and(() ->
-//                    {
-//                        left.revWhere(wherePredicate);
-//                    });
-//                }
-//                else
-//                {
-//                    wherePredicate.and();
-//                    left.revWhere(wherePredicate);
-//                }
-//                break;
-//            case OR:
-//                if (left.isHasParens())
-//                {
-//                    wherePredicate.or(() ->
-//                    {
-//                        left.revWhere(wherePredicate);
-//                    });
-//                }
-//                else
-//                {
-//                    wherePredicate.or();
-//                    left.revWhere(wherePredicate);
-//                }
-//                break;
-//        }
-//    }
-
-    private OperatorType revOp(OperatorType operatorType)
-    {
-        switch (operatorType)
+        else
         {
-            case EQ:
-            case NE:
-                return operatorType;
-            case GE:
-                return OperatorType.LE;
-            case LE:
-                return OperatorType.GE;
-            case GT:
-                return OperatorType.LT;
-            case LT:
-                return OperatorType.GT;
-            default:
-                throw new RuntimeException();
+            throw new RuntimeException();
         }
     }
 }

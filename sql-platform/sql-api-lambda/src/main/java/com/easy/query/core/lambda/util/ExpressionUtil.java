@@ -165,4 +165,10 @@ public class ExpressionUtil
                 || op == OperatorType.GE || op == OperatorType.GT
                 || op == OperatorType.LE || op == OperatorType.LT;
     }
+
+    public static boolean isArithmeticOperator(OperatorType op)
+    {
+        return op == OperatorType.PLUS || op == OperatorType.MINUS
+                || op == OperatorType.MUL || op == OperatorType.DIV;
+    }
 }

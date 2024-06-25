@@ -116,6 +116,11 @@ public class QueryWhereVisitor extends Visitor
             SqlContext round = round(parensExpression.getExpr(), parameters);
             return new SqlParensContext(round);
         }
+        else if (expression instanceof UnaryExpression)
+        {
+            UnaryExpression unaryExpression = (UnaryExpression) expression;
+            return new SqlUnaryContext(unaryExpression.getOperatorType(), round(unaryExpression.getOperand(), parameters));
+        }
         throw new RuntimeException("不支持的表达式 " + expression.getClass().getSimpleName() + " " + expression);
     }
 
