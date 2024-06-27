@@ -172,4 +172,9 @@ public class ExpressionUtil
         return op == SqlOperator.PLUS || op == SqlOperator.MINUS
                 || op == SqlOperator.MUL || op == SqlOperator.DIV;
     }
+
+    public static boolean isLikeOperator(SqlOperator op)
+    {
+        return op == SqlOperator.A_LIKE || op == SqlOperator.L_LIKE || op == SqlOperator.R_LIKE;
+    }
 }

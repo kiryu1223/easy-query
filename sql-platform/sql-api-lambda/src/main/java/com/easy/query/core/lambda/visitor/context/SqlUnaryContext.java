@@ -3,7 +3,6 @@ package com.easy.query.core.lambda.visitor.context;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunc;
 import com.easy.query.core.func.SQLFunction;
-import io.github.kiryu1223.expressionTree.expressions.OperatorType;
 
 public class SqlUnaryContext extends SqlContext
 {
@@ -37,10 +36,7 @@ public class SqlUnaryContext extends SqlContext
     {
         if (operatorType == SqlOperator.NOT)
         {
-            return fx.not(s ->
-            {
-                roundSqlContext(context, s, fx);
-            });
+            return fx.not(s -> roundSqlContext(context, s, fx));
         }
         else
         {

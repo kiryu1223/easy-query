@@ -20,5 +20,7 @@ public enum SqlOperator
     DIV,
 
     IN,
-    LIKE,
+    A_LIKE,
+    L_LIKE,
+    R_LIKE
 }

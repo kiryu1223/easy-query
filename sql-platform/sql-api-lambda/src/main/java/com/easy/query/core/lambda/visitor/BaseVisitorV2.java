@@ -1,14 +1,14 @@
 package com.easy.query.core.lambda.visitor;
 
 import com.easy.query.api.lambda.sqlext.SqlFunctions;
-import com.easy.query.core.expression.builder.Filter;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
-import com.easy.query.core.func.SQLFunction;
+import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.lambda.visitor.context.*;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
 import static com.easy.query.core.lambda.util.ExpressionUtil.hasParameter;
@@ -17,196 +17,183 @@ import static com.easy.query.core.lambda.util.SqlUtil.fieldName;
 
 public abstract class BaseVisitorV2 extends Visitor
 {
-    protected void comparePropertyAndValue(Filter filter, EntitySQLTableOwner<?> tableOwner, String Property, Object value, OperatorType operatorType)
+    protected final List<EntitySQLTableOwner<?>> owners;
+
+    public BaseVisitorV2(List<EntitySQLTableOwner<?>> owners)
     {
-        switch (operatorType)
-        {
-            case EQ:
-                filter.eq(tableOwner.getTable(), Property, value);
-                break;
-            case NE:
-                filter.ne(tableOwner.getTable(), Property, value);
-                break;
-            case LT:
-                filter.lt(tableOwner.getTable(), Property, value);
-                break;
-            case GT:
-                filter.gt(tableOwner.getTable(), Property, value);
-                break;
-            case LE:
-                filter.le(tableOwner.getTable(), Property, value);
-                break;
-            case GE:
-                filter.ge(tableOwner.getTable(), Property, value);
-                break;
-        }
+        this.owners = owners;
     }
 
-    protected void comparePropertyAndProperty(Filter filter, EntitySQLTableOwner<?> table1, String Property1, EntitySQLTableOwner<?> table2, String Property2, OperatorType operatorType)
+    protected SqlContext round(Expression expression, List<ParameterExpression> parameters)
     {
-        switch (operatorType)
+        if (expression instanceof MethodCallExpression)
         {
-            case EQ:
-                filter.eq(table1.getTable(), Property1, table2.getTable(), Property2);
-                break;
-            case NE:
-                filter.ne(table1.getTable(), Property1, table2.getTable(), Property2);
-                break;
-            case LT:
-                filter.lt(table1.getTable(), Property1, table2.getTable(), Property2);
-                break;
-            case GT:
-                filter.gt(table1.getTable(), Property1, table2.getTable(), Property2);
-                break;
-            case LE:
-                filter.le(table1.getTable(), Property1, table2.getTable(), Property2);
-                break;
-            case GE:
-                filter.ge(table1.getTable(), Property1, table2.getTable(), Property2);
-                break;
+            MethodCallExpression methodCallExpression = (MethodCallExpression) expression;
+            Method callMethod = methodCallExpression.getMethod();
+            if (methodCallExpression.getExpr().getKind() == Kind.Parameter)
+            {
+                ParameterExpression parameter = (ParameterExpression) methodCallExpression.getExpr();
+                if (!isVoid(callMethod.getReturnType()))
+                {
+                    int index = parameters.indexOf(parameter);
+                    return new SqlPropertyContext(fieldName(callMethod), owners.get(index));
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
+            }
+            else if (Collection.class.isAssignableFrom(callMethod.getDeclaringClass()))
+            {
+                if (callMethod.getName().equals("contains"))
+                {
+                    Expression p = methodCallExpression.getArgs().get(0);
+                    Expression collection = methodCallExpression.getExpr();
+                    return new SqlBinaryContext(SqlOperator.IN, round(p, parameters), round(collection, parameters));
+                }
+                else
+                {
+                    throw new RuntimeException(expression.toString());
+                }
+            }
+            else if (String.class.isAssignableFrom(callMethod.getDeclaringClass()))
+            {
+                switch (callMethod.getName())
+                {
+                    case "contains":
+                    {
+                        SqlContext left = round(methodCallExpression.getExpr(), parameters);
+                        SqlContext right = round(methodCallExpression.getArgs().get(0), parameters);
+                        return new SqlBinaryContext(SqlOperator.A_LIKE, left, right);
+                    }
+                    case "startsWith":
+                    {
+                        SqlContext left = round(methodCallExpression.getExpr(), parameters);
+                        SqlContext right = round(methodCallExpression.getArgs().get(0), parameters);
+                        return new SqlBinaryContext(SqlOperator.L_LIKE, left, right);
+                    }
+                    case "endsWith":
+                    {
+                        SqlContext left = round(methodCallExpression.getExpr(), parameters);
+                        SqlContext right = round(methodCallExpression.getArgs().get(0), parameters);
+                        return new SqlBinaryContext(SqlOperator.R_LIKE, left, right);
+                    }
+                    default:
+                        if (!isVoid(callMethod.getReturnType()) && !hasParameter(methodCallExpression))
+                        {
+                            Object value = methodCallExpression.getValue();
+                            return new SqlValueContext(value);
+                        }
+                        else
+                        {
+                            throw new RuntimeException(expression.toString());
+                        }
+                }
+            }
+            else if (SqlFunctions.class.isAssignableFrom(callMethod.getDeclaringClass()))
+            {
+                SqlFuncContext sqlFuncContext = new SqlFuncContext(callMethod.getName());
+                for (Expression arg : methodCallExpression.getArgs())
+                {
+                    sqlFuncContext.getArgs().add(round(arg, parameters));
+                }
+                return sqlFuncContext;
+            }
+            else
+            {
+                if (isVoid(callMethod.getReturnType()) || hasParameter(methodCallExpression))
+                {
+                    throw new RuntimeException(expression.toString());
+                }
+                Object value = methodCallExpression.getValue();
+                return new SqlValueContext(value);
+            }
         }
+        else if (expression instanceof FieldSelectExpression)
+        {
+            FieldSelectExpression fieldSelectExpression = (FieldSelectExpression) expression;
+            Field field = fieldSelectExpression.getField();
+            if (fieldSelectExpression.getExpr().getKind() == Kind.Parameter)
+            {
+                ParameterExpression parameter = (ParameterExpression) fieldSelectExpression.getExpr();
+                int index = parameters.indexOf(parameter);
+                return new SqlPropertyContext(fieldName(field), owners.get(index));
+            }
+            else
+            {
+                if (hasParameter(fieldSelectExpression)) throw new RuntimeException();
+                return new SqlValueContext(fieldSelectExpression.getValue());
+            }
+        }
+        else if (expression instanceof ReferenceExpression)
+        {
+            ReferenceExpression referenceExpression = (ReferenceExpression) expression;
+            return new SqlValueContext(referenceExpression.getValue());
+        }
+        else if (expression instanceof ConstantExpression)
+        {
+            ConstantExpression constantExpression = (ConstantExpression) expression;
+            return new SqlValueContext(constantExpression.getValue());
+        }
+        else if (expression instanceof StaticClassExpression)
+        {
+            StaticClassExpression staticClassExpression = (StaticClassExpression) expression;
+            return new SqlValueContext(staticClassExpression.getType());
+        }
+        else if (expression instanceof BinaryExpression)
+        {
+            BinaryExpression binaryExpression = (BinaryExpression) expression;
+            OperatorType operatorType = binaryExpression.getOperatorType();
+            SqlContext left = round(binaryExpression.getLeft(), parameters);
+            SqlContext right = round(binaryExpression.getRight(), parameters);
+            return new SqlBinaryContext(javaOperatortoSqlOperator(operatorType), left, right);
+        }
+        else if (expression instanceof ParensExpression)
+        {
+            ParensExpression parensExpression = (ParensExpression) expression;
+            SqlContext round = round(parensExpression.getExpr(), parameters);
+            return new SqlParensContext(round);
+        }
+        else if (expression instanceof UnaryExpression)
+        {
+            UnaryExpression unaryExpression = (UnaryExpression) expression;
+            return new SqlUnaryContext(javaOperatortoSqlOperator(unaryExpression.getOperatorType()), round(unaryExpression.getOperand(), parameters));
+        }
+        throw new RuntimeException("不支持的表达式: " + expression.getKind() + " " + expression);
     }
 
-    protected void comparePropertyAndFunc(Filter filter, EntitySQLTableOwner<?> table1, String Property1, SQLFunction sqlFunction, OperatorType operatorType)
+    protected SqlOperator javaOperatortoSqlOperator(OperatorType type)
     {
-        switch (operatorType)
+        switch (type)
         {
+            case NOT:
+                return SqlOperator.NOT;
+            case OR:
+                return SqlOperator.OR;
+            case AND:
+                return SqlOperator.AND;
             case EQ:
-                filter.eq(table1.getTable(), Property1, sqlFunction);
-                break;
+                return SqlOperator.EQ;
             case NE:
-                filter.ne(table1.getTable(), Property1, sqlFunction);
-                break;
+                return SqlOperator.NE;
             case LT:
-                filter.lt(table1.getTable(), Property1, sqlFunction);
-                break;
+                return SqlOperator.LT;
             case GT:
-                filter.gt(table1.getTable(), Property1, sqlFunction);
-                break;
+                return SqlOperator.GT;
             case LE:
-                filter.le(table1.getTable(), Property1, sqlFunction);
-                break;
+                return SqlOperator.LE;
             case GE:
-                filter.ge(table1.getTable(), Property1, sqlFunction);
-                break;
-        }
-    }
-
-    protected void compareValueAndValue(Filter filter, Object value1, Object value2, OperatorType operatorType)
-    {
-        String op;
-        if (operatorType == OperatorType.EQ)
-        {
-            op = "=";
-        }
-        else if (operatorType == OperatorType.NE)
-        {
-            op = "<>";
-        }
-        else
-        {
-            op = operatorType.getOperator();
-        }
-
-        filter.sqlNativeSegment("{0} " + op + " {1}", s ->
-        {
-            s.value(value1);
-            s.value(value2);
-        });
-    }
-
-    protected void compareFuncAndValue(Filter filter, EntitySQLTableOwner<?> table1, SQLFunction function, Object value, OperatorType operatorType)
-    {
-        switch (operatorType)
-        {
-            case EQ:
-                filter.eq(table1.getTable(), function, value);
-                break;
-            case NE:
-                filter.ne(table1.getTable(), function, value);
-                break;
-            case LT:
-                filter.lt(table1.getTable(), function, value);
-                break;
-            case GT:
-                filter.gt(table1.getTable(), function, value);
-                break;
-            case LE:
-                filter.le(table1.getTable(), function, value);
-                break;
-            case GE:
-                filter.ge(table1.getTable(), function, value);
-                break;
-        }
-    }
-
-    protected void compareFuncAndProperty(Filter filter, EntitySQLTableOwner<?> table1, SQLFunction function, EntitySQLTableOwner<?> table2, String Property, OperatorType operatorType)
-    {
-        switch (operatorType)
-        {
-            case EQ:
-                filter.eq(table1.getTable(), function, table2.getTable(), Property);
-                break;
-            case NE:
-                filter.ne(table1.getTable(), function, table2.getTable(), Property);
-                break;
-            case LT:
-                filter.lt(table1.getTable(), function, table2.getTable(), Property);
-                break;
-            case GT:
-                filter.gt(table1.getTable(), function, table2.getTable(), Property);
-                break;
-            case LE:
-                filter.le(table1.getTable(), function, table2.getTable(), Property);
-                break;
-            case GE:
-                filter.ge(table1.getTable(), function, table2.getTable(), Property);
-                break;
-        }
-    }
-
-    protected void compareFuncAndFunc(Filter filter, EntitySQLTableOwner<?> table1, SQLFunction function1, EntitySQLTableOwner<?> table2, SQLFunction function2, OperatorType operatorType)
-    {
-        switch (operatorType)
-        {
-            case EQ:
-                filter.eq(table1.getTable(), function1, table2.getTable(), function2);
-                break;
-            case NE:
-                filter.ne(table1.getTable(), function1, table2.getTable(), function2);
-                break;
-            case LT:
-                filter.lt(table1.getTable(), function1, table2.getTable(), function2);
-                break;
-            case GT:
-                filter.gt(table1.getTable(), function1, table2.getTable(), function2);
-                break;
-            case LE:
-                filter.le(table1.getTable(), function1, table2.getTable(), function2);
-                break;
-            case GE:
-                filter.ge(table1.getTable(), function1, table2.getTable(), function2);
-                break;
-        }
-    }
-
-    protected OperatorType revOp(OperatorType operatorType)
-    {
-        switch (operatorType)
-        {
-            case EQ:
-            case NE:
-                return operatorType;
-            case GE:
-                return OperatorType.LE;
-            case LE:
-                return OperatorType.GE;
-            case GT:
-                return OperatorType.LT;
-            case LT:
-                return OperatorType.GT;
+                return SqlOperator.GE;
+            case PLUS:
+                return SqlOperator.PLUS;
+            case MINUS:
+                return SqlOperator.MINUS;
+            case MUL:
+                return SqlOperator.MUL;
+            case DIV:
+                return SqlOperator.DIV;
             default:
-                throw new RuntimeException();
+                throw new RuntimeException("不支持的sql运算符:" + type);
         }
     }
 }

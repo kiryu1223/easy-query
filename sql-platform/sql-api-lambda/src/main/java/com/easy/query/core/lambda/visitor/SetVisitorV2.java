@@ -1,53 +1,54 @@
 package com.easy.query.core.lambda.visitor;
 
-import com.easy.query.api.lambda.sqlext.SqlFunctions;
-import com.easy.query.core.basic.api.update.ClientExpressionUpdatable;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
-import com.easy.query.core.expression.parser.core.SQLTableOwner;
+import com.easy.query.core.expression.parser.core.base.ColumnSetter;
 import com.easy.query.core.func.SQLFunc;
-import com.easy.query.core.lambda.visitor.context.*;
+import com.easy.query.core.lambda.visitor.context.SqlContext;
+import com.easy.query.core.lambda.visitor.context.SqlFuncContext;
+import com.easy.query.core.lambda.visitor.context.SqlPropertyContext;
+import com.easy.query.core.lambda.visitor.context.SqlValueContext;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.util.List;
 
-import static com.easy.query.core.lambda.util.ExpressionUtil.*;
 import static com.easy.query.core.lambda.util.SqlUtil.fieldName;
 
-public class SetVisitorV2 extends Visitor
+public class SetVisitorV2 extends BaseVisitorV2
 {
-    private final ClientExpressionUpdatable<?> client;
-    private final EntitySQLTableOwner<?> owner;
+    private final ColumnSetter<?> columnSetter;
 
-    public SetVisitorV2(ClientExpressionUpdatable<?> client)
+    public SetVisitorV2(List<EntitySQLTableOwner<?>> owners, ColumnSetter<?> columnSetter)
     {
-        this.client = client;
-        this.owner = client.getColumnSetter();
+        super(owners);
+        this.columnSetter = columnSetter;
     }
 
     @Override
     public void visit(LambdaExpression<?> lambdaExpression)
     {
+        List<ParameterExpression> parameters = lambdaExpression.getParameters();
         Expression body = lambdaExpression.getBody();
-        SQLFunc fx = client.getExpressionContext().getRuntimeContext().fx();
+        SQLFunc fx = columnSetter.getSetter().getRuntimeContext().fx();
         if (body.getKind() == Kind.Block)
         {
             BlockExpression block = (BlockExpression) body;
             for (Expression expression : block.getExpressions())
             {
-                SqlContext context = round(expression);
-                if (!(context instanceof SqlSetPair)) throw new RuntimeException();
-                SqlSetPair sqlSetPair = (SqlSetPair) context;
-                sqlSetPair.updatable(client, fx);
+                if (expression instanceof MethodCallExpression)
+                {
+                    MethodCallExpression methodCall = (MethodCallExpression) expression;
+                    String property = fieldName(methodCall.getMethod());
+                    SqlContext context = round(methodCall.getArgs().get(0), parameters);
+                    setValue(property, context, fx);
+                }
             }
         }
         else if (body.getKind() == Kind.MethodCall)
         {
-            MethodCallExpression methodCallExpression = (MethodCallExpression) body;
-            SqlContext context = round(methodCallExpression);
-            if (!(context instanceof SqlSetPair)) throw new RuntimeException();
-            SqlSetPair sqlSetPair = (SqlSetPair) context;
-            sqlSetPair.updatable(client, fx);
+            MethodCallExpression methodCall = (MethodCallExpression) body;
+            String property = fieldName(methodCall.getMethod());
+            SqlContext context = round(methodCall, parameters);
+            setValue(property, context, fx);
         }
         else
         {
@@ -55,77 +56,22 @@ public class SetVisitorV2 extends Visitor
         }
     }
 
-    private SqlContext round(Expression expression)
+    private void setValue(String property, SqlContext context, SQLFunc fx)
     {
-        if (expression instanceof MethodCallExpression)
+        if (context instanceof SqlPropertyContext)
         {
-            MethodCallExpression methodCallExpression = (MethodCallExpression) expression;
-            Method callMethod = methodCallExpression.getMethod();
-            if (methodCallExpression.getExpr().getKind() == Kind.Parameter)
-            {
-                if (isSetter(callMethod))
-                {
-                    SqlSetPair sqlSetPair = new SqlSetPair();
-                    sqlSetPair.setProperty(fieldName(callMethod));
-                    sqlSetPair.setRight(round(methodCallExpression.getArgs().get(0)));
-                    return sqlSetPair;
-                }
-                else if (isGetter(callMethod))
-                {
-                    return new SqlPropertyContext(fieldName(callMethod), owner);
-                }
-                else
-                {
-                    throw new RuntimeException();
-                }
-            }
-            else if (SqlFunctions.class.isAssignableFrom(callMethod.getDeclaringClass()))
-            {
-                SqlFuncContext sqlFuncContext = new SqlFuncContext(callMethod.getName());
-                for (Expression arg : methodCallExpression.getArgs())
-                {
-                    sqlFuncContext.getArgs().add(round(arg));
-                }
-                return sqlFuncContext;
-            }
-            else
-            {
-                if (hasParameter(methodCallExpression)) throw new RuntimeException();
-                Object value = methodCallExpression.getValue();
-                return new SqlValueContext(value);
-            }
+            SqlPropertyContext sqlPropertyContext = (SqlPropertyContext) context;
+            columnSetter.setWithColumn(property, sqlPropertyContext.getProperty());
         }
-        else if (expression instanceof FieldSelectExpression)
+        else if (context instanceof SqlValueContext)
         {
-            FieldSelectExpression fieldSelectExpression = (FieldSelectExpression) expression;
-            Field field = fieldSelectExpression.getField();
-            if (fieldSelectExpression.getExpr().getKind() == Kind.Parameter)
-            {
-                return new SqlPropertyContext(fieldName(field), owner);
-            }
-            else
-            {
-                return new SqlValueContext(fieldSelectExpression.getValue());
-            }
+            SqlValueContext sqlValueContext = (SqlValueContext) context;
+            columnSetter.set(property, sqlValueContext.getValue());
         }
-        else if (expression instanceof ReferenceExpression)
+        else if (context instanceof SqlFuncContext)
         {
-            ReferenceExpression referenceExpression = (ReferenceExpression) expression;
-            return new SqlValueContext(referenceExpression.getValue());
-        }
-        else if (expression instanceof ConstantExpression)
-        {
-            ConstantExpression constantExpression = (ConstantExpression) expression;
-            return new SqlValueContext(constantExpression.getValue());
-        }
-        else if (expression instanceof StaticClassExpression)
-        {
-            StaticClassExpression staticClassExpression = (StaticClassExpression) expression;
-            return new SqlValueContext(staticClassExpression.getType());
-        }
-        else
-        {
-            throw new RuntimeException("不支持的表达式 " + expression.getClass().getSimpleName() + " " + expression.toString());
+            SqlFuncContext sqlFuncContext = (SqlFuncContext) context;
+            columnSetter.getSetter().setFunc(columnSetter.getTable(), property, sqlFuncContext.getFunction(fx));
         }
     }
 }

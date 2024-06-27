@@ -3,8 +3,6 @@ package com.easy.query.test.lambdaquerytest;
 import com.easy.query.api.lambda.crud.read.LQuery2;
 import com.easy.query.api.lambda.crud.update.LUpdate;
 import com.easy.query.api.lambda.sqlext.SqlFunctions;
-import com.easy.query.core.api.client.EasyQueryClient;
-import com.easy.query.core.extension.client.SQLClientFunc;
 import com.easy.query.test.h2.domain.DefTable;
 import com.easy.query.test.h2.domain.DefTableLeft1;
 import org.junit.Assert;
@@ -35,23 +33,18 @@ public class LambdaUpdateTest extends LambdaBaseTest
     public void u2()
     {
         LQuery2<DefTable, DefTableLeft1> where = elq.queryable(DefTable.class, DefTableLeft1.class)
-                .where((w, b) -> w.getEnable() == !b.getEnable() || (b.getNumber() == 1 || (100 + SqlFunctions.cast(w.getOptions(), int.class)) < b.getNumber()));
+                .where((w, b) ->
+                        w.getEnable() == !b.getEnable()
+                                || (b.getNumber() == 1
+                                || (100 + SqlFunctions.cast(w.getOptions(), int.class)) * 200 < b.getNumber()));
         System.out.println(where.toSQL());
     }
 
     @Test
     public void u3()
     {
-        EasyQueryClient easyQueryClient = elq.getEasyQueryClient();
-        String sql = easyQueryClient.queryable(DefTable.class)
-                .from(DefTableLeft1.class)
-                .where((w0, w1) ->
-                {
-
-                }).select(DefTable.class, (a, b) ->
-                {
-                    a.sqlSegmentAs(SQLClientFunc.caseWhenBuilder(a).elseEnd(0), "");
-                }).toSQL();
-        System.out.println(sql);
+        LQuery2<DefTable, DefTableLeft1> where = elq.queryable(DefTable.class, DefTableLeft1.class)
+                .where((a, b) -> "666".contains(a.getNickname()));
+        System.out.println(where.toSQL());
     }
 }

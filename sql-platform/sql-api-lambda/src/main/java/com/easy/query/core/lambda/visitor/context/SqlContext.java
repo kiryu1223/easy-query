@@ -1,6 +1,7 @@
 package com.easy.query.core.lambda.visitor.context;
 
 
+import com.easy.query.core.enums.SQLLikeEnum;
 import com.easy.query.core.expression.builder.Filter;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
@@ -333,5 +334,19 @@ public abstract class SqlContext
         {
             throw new RuntimeException(context.toString());
         }
+    }
+
+    protected void makeLike(WherePredicate<?> wherePredicate, SqlContext left, SqlContext right, SqlOperator likeEnum)
+    {
+        SQLFunc fx = wherePredicate.fx();
+        SQLFunction like = fx.like(c ->
+        {
+            roundSqlContext(left, c, fx);
+            roundSqlContext(right, c, fx);
+        }, true, likeEnum == SqlOperator.A_LIKE
+                ? SQLLikeEnum.LIKE_PERCENT_ALL : likeEnum == SqlOperator.L_LIKE
+                ? SQLLikeEnum.LIKE_PERCENT_LEFT
+                : SQLLikeEnum.LIKE_PERCENT_RIGHT);
+        wherePredicate.sqlFunc(like);
     }
 }

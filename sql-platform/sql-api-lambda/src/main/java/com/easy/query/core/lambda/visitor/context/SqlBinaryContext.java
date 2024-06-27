@@ -1,5 +1,6 @@
 package com.easy.query.core.lambda.visitor.context;
 
+import com.easy.query.core.enums.SQLLikeEnum;
 import com.easy.query.core.expression.builder.Filter;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunc;
@@ -7,8 +8,7 @@ import com.easy.query.core.func.SQLFunction;
 
 import java.util.Collection;
 
-import static com.easy.query.core.lambda.util.ExpressionUtil.isAndorOr;
-import static com.easy.query.core.lambda.util.ExpressionUtil.isCompareOperator;
+import static com.easy.query.core.lambda.util.ExpressionUtil.*;
 
 public class SqlBinaryContext extends SqlContext
 {
@@ -358,6 +358,10 @@ public class SqlBinaryContext extends SqlContext
             {
                 throw new RuntimeException();
             }
+        }
+        else if (isLikeOperator(operatorType))
+        {
+            makeLike(wherePredicate,left,right,operatorType);
         }
         else
         {

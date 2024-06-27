@@ -2,12 +2,16 @@ package com.easy.query.core.lambda.condition.criteria;
 
 import com.easy.query.api.lambda.crud.read.QueryData;
 import com.easy.query.core.basic.api.select.*;
+import com.easy.query.core.basic.api.select.provider.SQLExpressionProvider;
+import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
+import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.lambda.exception.IllegalExpressionException;
 import com.easy.query.core.lambda.visitor.GroupByVisitor;
 import com.easy.query.core.lambda.visitor.SqlValue;
 import io.github.kiryu1223.expressionTree.expressions.Kind;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Criteria
@@ -1522,5 +1526,79 @@ public abstract class Criteria
                 }
             }));
         }
+    }
+
+    protected List<EntitySQLTableOwner<?>> getOwners(ClientQueryable<?> queryable)
+    {
+        if (queryable instanceof ClientQueryable10)
+        {
+            ClientQueryable10 c = (ClientQueryable10) queryable;
+            SQLExpressionProvider<?> s1 = c.getSQLExpressionProvider1();
+            SQLExpressionProvider<?> s2 = c.getSQLExpressionProvider2();
+            SQLExpressionProvider<?> s3 = c.getSQLExpressionProvider3();
+            SQLExpressionProvider<?> s4 = c.getSQLExpressionProvider4();
+            SQLExpressionProvider<?> s5 = c.getSQLExpressionProvider5();
+            SQLExpressionProvider<?> s6 = c.getSQLExpressionProvider6();
+            SQLExpressionProvider<?> s7 = c.getSQLExpressionProvider7();
+            SQLExpressionProvider<?> s8 = c.getSQLExpressionProvider8();
+            SQLExpressionProvider<?> s9 = c.getSQLExpressionProvider9();
+            SQLExpressionProvider<?> s10 = c.getSQLExpressionProvider10();
+            WherePredicate<?> w1 = s1.getWherePredicate(s1.getWhereFilterContext());
+            WherePredicate<?> w2 = s2.getWherePredicate(s2.getWhereFilterContext());
+            WherePredicate<?> w3 = s3.getWherePredicate(s3.getWhereFilterContext());
+            WherePredicate<?> w4 = s4.getWherePredicate(s4.getWhereFilterContext());
+            WherePredicate<?> w5 = s5.getWherePredicate(s5.getWhereFilterContext());
+            WherePredicate<?> w6 = s2.getWherePredicate(s6.getWhereFilterContext());
+            WherePredicate<?> w7 = s7.getWherePredicate(s7.getWhereFilterContext());
+            WherePredicate<?> w8 = s8.getWherePredicate(s8.getWhereFilterContext());
+            WherePredicate<?> w9 = s9.getWherePredicate(s9.getWhereFilterContext());
+            WherePredicate<?> w10 = s10.getWherePredicate(s10.getWhereFilterContext());
+            List<EntitySQLTableOwner<?>> owners=new ArrayList<>(10);
+            owners.add(w1);
+            owners.add(w2);
+            owners.add(w3);
+            owners.add(w4);
+            owners.add(w5);
+            owners.add(w6);
+            owners.add(w7);
+            owners.add(w8);
+            owners.add(w9);
+            owners.add(w10);
+            return owners;
+        }
+       else if (queryable instanceof ClientQueryable9)
+        {
+            ClientQueryable9 c = (ClientQueryable9) queryable;
+            SQLExpressionProvider<?> s1 = c.getSQLExpressionProvider1();
+            SQLExpressionProvider<?> s2 = c.getSQLExpressionProvider2();
+            SQLExpressionProvider<?> s3 = c.getSQLExpressionProvider3();
+            SQLExpressionProvider<?> s4 = c.getSQLExpressionProvider4();
+            SQLExpressionProvider<?> s5 = c.getSQLExpressionProvider5();
+            SQLExpressionProvider<?> s6 = c.getSQLExpressionProvider6();
+            SQLExpressionProvider<?> s7 = c.getSQLExpressionProvider7();
+            SQLExpressionProvider<?> s8 = c.getSQLExpressionProvider8();
+            SQLExpressionProvider<?> s9 = c.getSQLExpressionProvider9();
+            WherePredicate<?> w1 = s1.getWherePredicate(s1.getWhereFilterContext());
+            WherePredicate<?> w2 = s2.getWherePredicate(s2.getWhereFilterContext());
+            WherePredicate<?> w3 = s3.getWherePredicate(s3.getWhereFilterContext());
+            WherePredicate<?> w4 = s4.getWherePredicate(s4.getWhereFilterContext());
+            WherePredicate<?> w5 = s5.getWherePredicate(s5.getWhereFilterContext());
+            WherePredicate<?> w6 = s2.getWherePredicate(s6.getWhereFilterContext());
+            WherePredicate<?> w7 = s7.getWherePredicate(s7.getWhereFilterContext());
+            WherePredicate<?> w8 = s8.getWherePredicate(s8.getWhereFilterContext());
+            WherePredicate<?> w9 = s9.getWherePredicate(s9.getWhereFilterContext());
+            List<EntitySQLTableOwner<?>> owners=new ArrayList<>(10);
+            owners.add(w1);
+            owners.add(w2);
+            owners.add(w3);
+            owners.add(w4);
+            owners.add(w5);
+            owners.add(w6);
+            owners.add(w7);
+            owners.add(w8);
+            owners.add(w9);
+            return owners;
+        }
+       return null;
     }
 }
