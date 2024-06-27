@@ -7,6 +7,7 @@ import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
 
 import static com.easy.query.core.lambda.util.ExpressionUtil.hasParameter;
@@ -15,17 +16,11 @@ import static com.easy.query.core.lambda.util.SqlUtil.fieldName;
 
 public class QueryWhereVisitor extends Visitor
 {
-    //    private final ClientQueryable<?> client;
-//    private final SQLFunc fx;
     private final List<WherePredicate<?>> wherePredicates;
 
     public QueryWhereVisitor(List<WherePredicate<?>> wherePredicates)
     {
-//        this.client = client;
-//        this.fx = client.getSQLEntityExpressionBuilder().getRuntimeContext().fx();
         this.wherePredicates = wherePredicates;
-//        EntityTableExpressionBuilder table = client.getSQLEntityExpressionBuilder().getTable(0);
-//        SimpleEntitySQLTableOwner<?> owner = new SimpleEntitySQLTableOwner<Object>(table.getEntityTable());
     }
 
     @Override
@@ -46,7 +41,7 @@ public class QueryWhereVisitor extends Visitor
             if (methodCallExpression.getExpr().getKind() == Kind.Parameter)
             {
                 ParameterExpression parameter = (ParameterExpression) methodCallExpression.getExpr();
-                if (parameters.contains(parameter) && !isVoid(callMethod.getReturnType()))
+                if (!isVoid(callMethod.getReturnType()))
                 {
                     int index = parameters.indexOf(parameter);
                     return new SqlPropertyContext(fieldName(callMethod), wherePredicates.get(index));
@@ -54,6 +49,19 @@ public class QueryWhereVisitor extends Visitor
                 else
                 {
                     throw new RuntimeException();
+                }
+            }
+            else if (Collection.class.isAssignableFrom(callMethod.getDeclaringClass()))
+            {
+                if (callMethod.getName().equals("contains"))
+                {
+                    Expression p = methodCallExpression.getArgs().get(0);
+                    Expression collection = methodCallExpression.getExpr();
+                    return new SqlBinaryContext(SqlOperator.IN,round(p,parameters),round(collection,parameters));
+                }
+                else
+                {
+                    throw new RuntimeException(expression.toString());
                 }
             }
             else if (SqlFunctions.class.isAssignableFrom(callMethod.getDeclaringClass()))
@@ -84,6 +92,7 @@ public class QueryWhereVisitor extends Visitor
             }
             else
             {
+                if (hasParameter(fieldSelectExpression)) throw new RuntimeException();
                 return new SqlValueContext(fieldSelectExpression.getValue());
             }
         }
@@ -108,7 +117,7 @@ public class QueryWhereVisitor extends Visitor
             OperatorType operatorType = binaryExpression.getOperatorType();
             SqlContext left = round(binaryExpression.getLeft(), parameters);
             SqlContext right = round(binaryExpression.getRight(), parameters);
-            return new SqlBinaryContext(operatorType, left, right);
+            return new SqlBinaryContext(javaOperatortoSqlOperator(operatorType), left, right);
         }
         else if (expression instanceof ParensExpression)
         {
@@ -119,590 +128,43 @@ public class QueryWhereVisitor extends Visitor
         else if (expression instanceof UnaryExpression)
         {
             UnaryExpression unaryExpression = (UnaryExpression) expression;
-            return new SqlUnaryContext(unaryExpression.getOperatorType(), round(unaryExpression.getOperand(), parameters));
+            return new SqlUnaryContext(javaOperatortoSqlOperator(unaryExpression.getOperatorType()), round(unaryExpression.getOperand(), parameters));
         }
-        throw new RuntimeException("不支持的表达式 " + expression.getClass().getSimpleName() + " " + expression);
+        throw new RuntimeException("不支持的表达式: " + expression.getKind() + " " + expression);
     }
 
-//    private void client1_10Property(int index, OperatorType type, String Property1, EntitySQLTableOwner<?> owner, String Property2)
-//    {
-//        if (client instanceof ClientQueryable10)
-//        {
-//            ClientQueryable10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6, w7, w8, w9) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//                    case 4:
-//                        whereProperty(w4, type, Property1, Property2, owner);
-//                        break;
-//                    case 5:
-//                        whereProperty(w5, type, Property1, Property2, owner);
-//                        break;
-//                    case 6:
-//                        whereProperty(w6, type, Property1, Property2, owner);
-//                        break;
-//                    case 7:
-//                        whereProperty(w7, type, Property1, Property2, owner);
-//                        break;
-//                    case 8:
-//                        whereProperty(w8, type, Property1, Property2, owner);
-//                        break;
-//                    case 9:
-//                        whereProperty(w9, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable9)
-//        {
-//            ClientQueryable9<?, ?, ?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable9<?, ?, ?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6, w7, w8) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//                    case 4:
-//                        whereProperty(w4, type, Property1, Property2, owner);
-//                        break;
-//                    case 5:
-//                        whereProperty(w5, type, Property1, Property2, owner);
-//                        break;
-//                    case 6:
-//                        whereProperty(w6, type, Property1, Property2, owner);
-//                        break;
-//                    case 7:
-//                        whereProperty(w7, type, Property1, Property2, owner);
-//                        break;
-//                    case 8:
-//                        whereProperty(w8, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable8)
-//        {
-//            ClientQueryable8<?, ?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable8<?, ?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6, w7) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//                    case 4:
-//                        whereProperty(w4, type, Property1, Property2, owner);
-//                        break;
-//                    case 5:
-//                        whereProperty(w5, type, Property1, Property2, owner);
-//                        break;
-//                    case 6:
-//                        whereProperty(w6, type, Property1, Property2, owner);
-//                        break;
-//                    case 7:
-//                        whereProperty(w7, type, Property1, Property2, owner);
-//                        break;
-//
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable7)
-//        {
-//            ClientQueryable7<?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable7<?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//                    case 4:
-//                        whereProperty(w4, type, Property1, Property2, owner);
-//                        break;
-//                    case 5:
-//                        whereProperty(w5, type, Property1, Property2, owner);
-//                        break;
-//                    case 6:
-//                        whereProperty(w6, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable6)
-//        {
-//            ClientQueryable6<?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable6<?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//                    case 4:
-//                        whereProperty(w4, type, Property1, Property2, owner);
-//                        break;
-//                    case 5:
-//                        whereProperty(w5, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable5)
-//        {
-//            ClientQueryable5<?, ?, ?, ?, ?> clientQueryable = (ClientQueryable5<?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//                    case 4:
-//                        whereProperty(w4, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable4)
-//        {
-//            ClientQueryable4<?, ?, ?, ?> clientQueryable = (ClientQueryable4<?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                    case 3:
-//                        whereProperty(w3, type, Property1, Property2, owner);
-//                        break;
-//
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable3)
-//        {
-//            ClientQueryable3<?, ?, ?> clientQueryable = (ClientQueryable3<?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                    case 2:
-//                        whereProperty(w2, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable2)
-//        {
-//            ClientQueryable2<?, ?> clientQueryable = (ClientQueryable2<?, ?>) client;
-//            clientQueryable.where((w0, w1) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereProperty(w0, type, Property1, Property2, owner);
-//                        break;
-//                    case 1:
-//                        whereProperty(w1, type, Property1, Property2, owner);
-//                        break;
-//                }
-//            });
-//        }
-//        else
-//        {
-//            client.where((w0) ->
-//            {
-//                whereProperty(w0, type, Property1, Property2, owner);
-//            });
-//        }
-//    }
-//
-//    private void whereProperty(WherePredicate<?> wherePredicate, OperatorType operatorType, String property1, String property2, EntitySQLTableOwner<?> owner)
-//    {
-//        switch (operatorType)
-//        {
-//            case EQ:
-//                wherePredicate.eq(owner, property1, property2);
-//                break;
-//            case NE:
-//                wherePredicate.ne(owner, property1, property2);
-//                break;
-//            case LT:
-//                wherePredicate.lt(owner, property1, property2);
-//                break;
-//            case GT:
-//                wherePredicate.gt(owner, property1, property2);
-//                break;
-//            case LE:
-//                wherePredicate.le(owner, property1, property2);
-//                break;
-//            case GE:
-//                wherePredicate.ge(owner, property1, property2);
-//                break;
-//        }
-//    }
-//
-//    private void client1_10Value(int index, OperatorType type, String Property1, Object value)
-//    {
-//        if (client instanceof ClientQueryable10)
-//        {
-//            ClientQueryable10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable10<?, ?, ?, ?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6, w7, w8, w9) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//                    case 4:
-//                        whereValue(w4, type, Property1, value);
-//                        break;
-//                    case 5:
-//                        whereValue(w5, type, Property1, value);
-//                        break;
-//                    case 6:
-//                        whereValue(w6, type, Property1, value);
-//                        break;
-//                    case 7:
-//                        whereValue(w7, type, Property1, value);
-//                        break;
-//                    case 8:
-//                        whereValue(w8, type, Property1, value);
-//                        break;
-//                    case 9:
-//                        whereValue(w9, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable9)
-//        {
-//            ClientQueryable9<?, ?, ?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable9<?, ?, ?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6, w7, w8) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//                    case 4:
-//                        whereValue(w4, type, Property1, value);
-//                        break;
-//                    case 5:
-//                        whereValue(w5, type, Property1, value);
-//                        break;
-//                    case 6:
-//                        whereValue(w6, type, Property1, value);
-//                        break;
-//                    case 7:
-//                        whereValue(w7, type, Property1, value);
-//                        break;
-//                    case 8:
-//                        whereValue(w8, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable8)
-//        {
-//            ClientQueryable8<?, ?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable8<?, ?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6, w7) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//                    case 4:
-//                        whereValue(w4, type, Property1, value);
-//                        break;
-//                    case 5:
-//                        whereValue(w5, type, Property1, value);
-//                        break;
-//                    case 6:
-//                        whereValue(w6, type, Property1, value);
-//                        break;
-//                    case 7:
-//                        whereValue(w7, type, Property1, value);
-//                        break;
-//
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable7)
-//        {
-//            ClientQueryable7<?, ?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable7<?, ?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5, w6) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//                    case 4:
-//                        whereValue(w4, type, Property1, value);
-//                        break;
-//                    case 5:
-//                        whereValue(w5, type, Property1, value);
-//                        break;
-//                    case 6:
-//                        whereValue(w6, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable6)
-//        {
-//            ClientQueryable6<?, ?, ?, ?, ?, ?> clientQueryable = (ClientQueryable6<?, ?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4, w5) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//                    case 4:
-//                        whereValue(w4, type, Property1, value);
-//                        break;
-//                    case 5:
-//                        whereValue(w5, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable5)
-//        {
-//            ClientQueryable5<?, ?, ?, ?, ?> clientQueryable = (ClientQueryable5<?, ?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3, w4) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//                    case 4:
-//                        whereValue(w4, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable4)
-//        {
-//            ClientQueryable4<?, ?, ?, ?> clientQueryable = (ClientQueryable4<?, ?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2, w3) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                    case 3:
-//                        whereValue(w3, type, Property1, value);
-//                        break;
-//
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable3)
-//        {
-//            ClientQueryable3<?, ?, ?> clientQueryable = (ClientQueryable3<?, ?, ?>) client;
-//            clientQueryable.where((w0, w1, w2) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                    case 2:
-//                        whereValue(w2, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else if (client instanceof ClientQueryable2)
-//        {
-//            ClientQueryable2<?, ?> clientQueryable = (ClientQueryable2<?, ?>) client;
-//            clientQueryable.where((w0, w1) ->
-//            {
-//                switch (index)
-//                {
-//                    case 0:
-//                        whereValue(w0, type, Property1, value);
-//                        break;
-//                    case 1:
-//                        whereValue(w1, type, Property1, value);
-//                        break;
-//                }
-//            });
-//        }
-//        else
-//        {
-//            client.where((w0) ->
-//            {
-//                whereValue(w0, type, Property1, value);
-//            });
-//        }
-//    }
-//
-//    private void whereValue(WherePredicate<?> wherePredicate, OperatorType operatorType, String property1, Object value)
-//    {
-//        switch (operatorType)
-//        {
-//            case EQ:
-//                wherePredicate.eq(property1, value);
-//                break;
-//            case NE:
-//                wherePredicate.ne(property1, value);
-//                break;
-//            case LT:
-//                wherePredicate.lt(property1, value);
-//                break;
-//            case GT:
-//                wherePredicate.gt(property1, value);
-//                break;
-//            case LE:
-//                wherePredicate.le(property1, value);
-//                break;
-//            case GE:
-//                wherePredicate.ge(property1, value);
-//                break;
-//        }
-//    }
-//
-
+    private SqlOperator javaOperatortoSqlOperator(OperatorType type)
+    {
+        switch (type)
+        {
+            case NOT:
+                return SqlOperator.NOT;
+            case OR:
+                return SqlOperator.OR;
+            case AND:
+                return SqlOperator.AND;
+            case EQ:
+                return SqlOperator.EQ;
+            case NE:
+                return SqlOperator.NE;
+            case LT:
+                return SqlOperator.LT;
+            case GT:
+                return SqlOperator.GT;
+            case LE:
+                return SqlOperator.LE;
+            case GE:
+                return SqlOperator.GE;
+            case PLUS:
+                return SqlOperator.PLUS;
+            case MINUS:
+                return SqlOperator.MINUS;
+            case MUL:
+                return SqlOperator.MUL;
+            case DIV:
+                return SqlOperator.DIV;
+            default:
+                throw new RuntimeException("不支持的sql运算符:" + type);
+        }
+    }
 }

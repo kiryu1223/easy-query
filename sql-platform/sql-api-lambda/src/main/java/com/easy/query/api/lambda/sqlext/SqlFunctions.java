@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAmount;
-import java.util.concurrent.TimeUnit;
 
 public class SqlFunctions
 {
@@ -91,7 +90,7 @@ public class SqlFunctions
     @Ext(dbType = DbType.MySQL, function = "NOW()")
     public static LocalDateTime now()
     {
-        if (1 + 1 == 2)
+        if (win)
         {
             throw new SqlFunctionInvokeException();
         }
@@ -1659,7 +1658,11 @@ public class SqlFunctions
 
     public static <T> T cast(Object value, Class<T> targetType)
     {
-        throw new SqlFunctionInvokeException();
+        if (win)
+        {
+            throw new SqlFunctionInvokeException();
+        }
+        return (T) new Object();
     }
 
 //    @Ext(dbType = DbType.H2, function = "CAST({} AS {})")
@@ -1677,4 +1680,5 @@ public class SqlFunctions
 //    }
 
     // endregion
+    private static final boolean win = true;
 }

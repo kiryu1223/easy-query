@@ -10,7 +10,7 @@ import com.easy.query.test.h2.domain.DefTableLeft1;
 import org.junit.Assert;
 import org.junit.Test;
 
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public class LambdaUpdateTest extends LambdaBaseTest
 {
     @Test
@@ -35,7 +35,7 @@ public class LambdaUpdateTest extends LambdaBaseTest
     public void u2()
     {
         LQuery2<DefTable, DefTableLeft1> where = elq.queryable(DefTable.class, DefTableLeft1.class)
-                .where((w, b) -> w.getEnable() || (b.getNumber() == 1 || (100 + SqlFunctions.cast(w.getOptions(), int.class)) * 1 < b.getNumber()));
+                .where((w, b) -> w.getEnable() == !b.getEnable() || (b.getNumber() == 1 || (100 + SqlFunctions.cast(w.getOptions(), int.class)) < b.getNumber()));
         System.out.println(where.toSQL());
     }
 

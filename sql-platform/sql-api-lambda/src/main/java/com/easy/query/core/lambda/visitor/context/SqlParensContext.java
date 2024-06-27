@@ -23,30 +23,26 @@ public class SqlParensContext extends SqlContext
         if (context instanceof SqlBinaryContext)
         {
             SqlBinaryContext binaryContext = (SqlBinaryContext) context;
-            OperatorType operatorType = binaryContext.getOperatorType();
+            SqlOperator operatorType = binaryContext.getOperatorType();
             switch (operatorType)
             {
                 case AND:
                 {
-                    wherePredicate.and(() ->
-                    {
-                        binaryContext.revWhere(wherePredicate);
-                    });
+                    wherePredicate.and(() -> binaryContext.revWhere(wherePredicate));
                     break;
                 }
                 case OR:
                 {
-                    wherePredicate.or(() ->
-                    {
-                        binaryContext.revWhere(wherePredicate);
-                    });
+                    wherePredicate.or(() -> binaryContext.revWhere(wherePredicate));
                     break;
                 }
                 default:
                     context.revWhere(wherePredicate);
             }
-            return;
         }
-        context.revWhere(wherePredicate);
+        else
+        {
+            context.revWhere(wherePredicate);
+        }
     }
 }

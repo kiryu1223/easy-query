@@ -1,6 +1,7 @@
 package com.easy.query.core.lambda.util;
 
 import com.easy.query.api.lambda.crud.read.group.IGroup;
+import com.easy.query.core.lambda.visitor.context.SqlOperator;
 import io.github.kiryu1223.expressionTree.expressions.*;
 
 import java.lang.reflect.Field;
@@ -154,21 +155,21 @@ public class ExpressionUtil
         return paramMatcher;
     }
 
-    public static boolean isAndorOr(OperatorType operatorType)
+    public static boolean isAndorOr(SqlOperator operatorType)
     {
-        return operatorType == OperatorType.AND || operatorType == OperatorType.OR;
+        return operatorType == SqlOperator.AND || operatorType == SqlOperator.OR;
     }
 
-    public static boolean isCompareOperator(OperatorType op)
+    public static boolean isCompareOperator(SqlOperator op)
     {
-        return op == OperatorType.EQ || op == OperatorType.NE
-                || op == OperatorType.GE || op == OperatorType.GT
-                || op == OperatorType.LE || op == OperatorType.LT;
+        return op == SqlOperator.EQ || op == SqlOperator.NE
+                || op == SqlOperator.GE || op == SqlOperator.GT
+                || op == SqlOperator.LE || op == SqlOperator.LT;
     }
 
-    public static boolean isArithmeticOperator(OperatorType op)
+    public static boolean isArithmeticOperator(SqlOperator op)
     {
-        return op == OperatorType.PLUS || op == OperatorType.MINUS
-                || op == OperatorType.MUL || op == OperatorType.DIV;
+        return op == SqlOperator.PLUS || op == SqlOperator.MINUS
+                || op == SqlOperator.MUL || op == SqlOperator.DIV;
     }
 }
