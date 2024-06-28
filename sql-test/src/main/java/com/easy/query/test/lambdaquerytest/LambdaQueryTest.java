@@ -6,7 +6,6 @@ import com.easy.query.api.lambda.crud.read.LQuery2;
 import com.easy.query.api.lambda.crud.read.LQuery3;
 import com.easy.query.api.lambda.crud.read.LQuery4;
 import com.easy.query.api.lambda.sqlext.SqlFunctions;
-import com.easy.query.api.lambda.sqlext.SqlTypes;
 import com.easy.query.core.lambda.common.TempResult;
 import com.easy.query.test.entity.BlogEntity;
 import com.easy.query.test.entity.Topic;
@@ -203,7 +202,7 @@ public class LambdaQueryTest extends LambdaBaseTest
         LQuery<DefTable> where = elq.queryable(DefTable.class)
                 .where(d -> d.getNumber() > Integer.MAX_VALUE && d.getNumber() < Integer.MIN_VALUE || 1 == 1);
         String sql = where.toSQL();
-        Assert.assertEquals("SELECT id,user_name,nickname,enable,score,mobile,avatar,number,status,created,options FROM t_def_table WHERE number > ? AND number < ? OR ? = ?", sql);
+        Assert.assertEquals("SELECT id,user_name,nickname,enable,score,mobile,avatar,number,status,created,options FROM t_def_table WHERE (number > ? AND number < ? OR ? = ?)", sql);
         DefTable defTable = where.firstOrNull();
         Assert.assertEquals("DefTable(id=0, userName=username0, nickname=nickname0, enable=true, score=0.10, mobile=1330, avatar=http://www.0.com, number=0, status=0, created=2020-01-01T00:00, options=null)", defTable.toString());
     }
@@ -228,7 +227,7 @@ public class LambdaQueryTest extends LambdaBaseTest
     @Test
     public void q6()
     {
-        long DefTableCount = elq.queryable(DefTable.class).select(s -> SqlFunctions.count()).firstOrNull();
+        long DefTableCount = elq.queryable(DefTable.class).select(s -> SqlFunctions.count(1)).firstOrNull();
         long DefTable1Count = elq.queryable(DefTableLeft1.class).select(s -> SqlFunctions.count(1)).firstOrNull();
         long DefTable2Count = elq.queryable(DefTableLeft2.class).select(s -> SqlFunctions.count(1)).firstOrNull();
         long DefTable3Count = elq.queryable(DefTableLeft3.class).select(s -> SqlFunctions.count(1)).firstOrNull();

@@ -17,9 +17,9 @@ import static com.easy.query.core.lambda.util.SqlUtil.fieldName;
 
 public abstract class BaseVisitorV2 extends Visitor
 {
-    protected final List<EntitySQLTableOwner<?>> owners;
+    protected final List<? extends EntitySQLTableOwner<?>> owners;
 
-    public BaseVisitorV2(List<EntitySQLTableOwner<?>> owners)
+    public BaseVisitorV2(List<? extends EntitySQLTableOwner<?>> owners)
     {
         this.owners = owners;
     }
@@ -33,7 +33,7 @@ public abstract class BaseVisitorV2 extends Visitor
             if (methodCallExpression.getExpr().getKind() == Kind.Parameter)
             {
                 ParameterExpression parameter = (ParameterExpression) methodCallExpression.getExpr();
-                if (!isVoid(callMethod.getReturnType()))
+                if (parameters.contains(parameter)&&!isVoid(callMethod.getReturnType()))
                 {
                     int index = parameters.indexOf(parameter);
                     return new SqlPropertyContext(fieldName(callMethod), owners.get(index));

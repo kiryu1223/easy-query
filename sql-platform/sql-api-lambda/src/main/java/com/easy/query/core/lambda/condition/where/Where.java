@@ -50,7 +50,7 @@ public class Where extends Criteria
     {
         EntityUpdateExpressionBuilder builder = updatable.getUpdateExpressionBuilder();
         EntityTableExpressionBuilder table = builder.getTable(0);
-        WherePredicateImpl<?> wherePredicate = new WherePredicateImpl<>(table.getEntityTable(), new FilterContext(new FilterImpl(builder.getRuntimeContext(), builder.getExpressionContext(), builder.getWhere(), false, AnyValueFilter.DEFAULT)));
+        WherePredicate<?> wherePredicate = new WherePredicateImpl<>(table.getEntityTable(), new FilterContext(new FilterImpl(builder.getRuntimeContext(), builder.getExpressionContext(), builder.getWhere(), false, AnyValueFilter.DEFAULT)));
 
         List<EntitySQLTableOwner<?>> owners = Collections.singletonList(wherePredicate);
         WhereVisitorV2 whereVisitorV2 = new WhereVisitorV2(owners, wherePredicate);
@@ -59,22 +59,9 @@ public class Where extends Criteria
 
     public void analysis(ClientQueryable<?> queryable, QueryData queryData)
     {
-//        List<EntitySQLTableOwner<?>> owners;
-//        WherePredicate<?> wherePredicate;
-//
-//
-//        WhereVisitorV2 whereVisitorV2 = new WhereVisitorV2(owners, wherePredicate);
-//        whereVisitorV2.visit(expression);
-    }
-
-    public void analysis(ClientQueryable2<?, ?> queryable, QueryData queryData)
-    {
         SQLExpressionProvider<?> sqlExpressionProvider1 = queryable.getSQLExpressionProvider1();
-        SQLExpressionProvider<?> sqlExpressionProvider2 = queryable.getSQLExpressionProvider2();
-        WherePredicate<?> wherePredicate1 = sqlExpressionProvider1.getWherePredicate(sqlExpressionProvider1.getWhereFilterContext());
-        WherePredicate<?> wherePredicate2 = sqlExpressionProvider2.getWherePredicate(sqlExpressionProvider2.getWhereFilterContext());
-        List<EntitySQLTableOwner<?>> owners = Arrays.asList(wherePredicate1, wherePredicate2);
-        WhereVisitorV2 whereVisitorV2 = new WhereVisitorV2(owners, wherePredicate1);
+        WherePredicate<?> wherePredicate = sqlExpressionProvider1.getWherePredicate(sqlExpressionProvider1.getWhereFilterContext());
+        WhereVisitorV2 whereVisitorV2 = new WhereVisitorV2(getOwners(queryable), wherePredicate);
         whereVisitorV2.visit(expression);
     }
 }

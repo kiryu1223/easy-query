@@ -40,12 +40,12 @@ public class SqlFunctions
 
     // region [聚合函数]
 
-    @Ext(dbType = DbType.H2, function = "COUNT(*)")
-    @Ext(dbType = DbType.MySQL, function = "COUNT(*)")
-    public static long count()
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    @Ext(dbType = DbType.H2, function = "COUNT(*)")
+//    @Ext(dbType = DbType.MySQL, function = "COUNT(*)")
+//    public static long count()
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     @Ext(dbType = DbType.H2, function = "COUNT({})")
     @Ext(dbType = DbType.MySQL, function = "COUNT({})")
@@ -1680,5 +1680,7 @@ public class SqlFunctions
 //    }
 
     // endregion
+
+    // 赢麻了
     private static final boolean win = true;
 }

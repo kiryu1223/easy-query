@@ -23,7 +23,7 @@ public class SqlUtil
             {
                 fieldName = fieldName.substring(3);
             }
-            else
+            else // is
             {
                 fieldName = fieldName.substring(2);
             }
