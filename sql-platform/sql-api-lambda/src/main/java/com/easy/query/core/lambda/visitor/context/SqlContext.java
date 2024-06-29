@@ -4,6 +4,7 @@ package com.easy.query.core.lambda.visitor.context;
 import com.easy.query.core.enums.SQLLikeEnum;
 import com.easy.query.core.expression.builder.Filter;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
+import com.easy.query.core.expression.parser.core.base.WhereAggregatePredicate;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunc;
 import com.easy.query.core.func.SQLFunction;
@@ -17,6 +18,10 @@ import static com.easy.query.core.lambda.util.ExpressionUtil.isArithmeticOperato
 public abstract class SqlContext
 {
     public void revWhere(WherePredicate<?> wherePredicate)
+    {
+    }
+
+    public void revHaving(WhereAggregatePredicate<?> whereAggregatePredicate)
     {
     }
 
@@ -310,10 +315,6 @@ public abstract class SqlContext
                 );
                 s.sqlFunc(sqlFunction);
             }
-//            else if (isCompareOperator(SqlOperator))
-//            {
-//
-//            }
             else
             {
                 throw new RuntimeException(sqlBinaryContext + " " + SqlOperator);
@@ -327,8 +328,7 @@ public abstract class SqlContext
         else if (context instanceof SqlUnaryContext)// 显然不应该走到这个case
         {
             SqlUnaryContext unaryContext = (SqlUnaryContext) context;
-            SQLFunction function = unaryContext.getFunction(fx);
-            s.sqlFunc(function);
+            s.sqlFunc(unaryContext.getFunction(fx));
         }
         else
         {

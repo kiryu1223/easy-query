@@ -64,7 +64,7 @@ public class ExpressionUtil
             FieldSelectExpression fieldSelect = (FieldSelectExpression) expression;
             Field field = fieldSelect.getField();
             return fieldSelect.inParameters(parameters)
-                    && (IGroup.class.isAssignableFrom(field.getDeclaringClass()))
+                    && IGroup.class.isAssignableFrom(field.getDeclaringClass())
                     && field.getName().equals("key");
         }
         return false;

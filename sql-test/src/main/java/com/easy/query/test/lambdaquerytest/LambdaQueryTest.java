@@ -5,6 +5,7 @@ import com.easy.query.api.lambda.crud.read.LQuery;
 import com.easy.query.api.lambda.crud.read.LQuery2;
 import com.easy.query.api.lambda.crud.read.LQuery3;
 import com.easy.query.api.lambda.crud.read.LQuery4;
+import com.easy.query.api.lambda.crud.read.group.Grouper;
 import com.easy.query.api.lambda.sqlext.SqlFunctions;
 import com.easy.query.core.lambda.common.TempResult;
 import com.easy.query.test.entity.BlogEntity;
@@ -25,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("all")
+//@SuppressWarnings("all")
 public class LambdaQueryTest extends LambdaBaseTest
 {
 
@@ -247,21 +248,22 @@ public class LambdaQueryTest extends LambdaBaseTest
     public void q8()
     {
         LQuery<? extends TempResult> select = elq.queryable(DefTable.class)
-                .groupBy(g -> new Object()
+                .groupBy(g -> new Grouper()
                 {
                     int pp = SqlFunctions.cast(g.getId(), int.class);
                     boolean kk = g.getEnable();
                 })
-                .having(h -> h.key.pp == 110)
+                //.having(h -> h.key.pp == 110)
+                .having(h -> h.count(c -> c.getNumber()) > 0)
                 .select(s -> new TempResult()
                 {
                     int c1 = s.key.pp;
                     boolean b1 = s.key.kk;
                 });
         String sql = select.toSQL();
-        Assert.assertEquals("SELECT CAST(t.id AS SIGNED) AS c1,t.enable AS b1 FROM t_def_table t GROUP BY CAST(t.id AS SIGNED),t.enable HAVING CAST(t.id AS SIGNED) = ?", sql);
+        Assert.assertEquals("SELECT CAST(t.id AS SIGNED) AS c1,t.enable AS b1 FROM t_def_table t GROUP BY CAST(t.id AS SIGNED),t.enable HAVING COUNT(t.number) > ?", sql);
         List<? extends TempResult> list = select.toList();
-        Assert.assertEquals(1, list.size());
+        Assert.assertEquals(1000, list.size());
     }
 
     @Test
@@ -735,7 +737,7 @@ public class LambdaQueryTest extends LambdaBaseTest
                 .select(g -> new TempResult()
                 {
                     String blogId = g.key;
-                    long blogCount = g.count();
+                    long blogCount = g.count(0);
                 })
                 //对匿名表进行join
                 .leftJoin(Topic.class, (g, topic) -> g.blogId == topic.getId())

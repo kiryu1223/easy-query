@@ -6,9 +6,7 @@ import com.easy.query.core.basic.api.select.provider.SQLExpressionProvider;
 import com.easy.query.core.expression.lambda.*;
 import com.easy.query.core.expression.parser.core.base.ColumnAsSelector;
 import com.easy.query.core.lambda.condition.criteria.Criteria;
-import com.easy.query.core.lambda.visitor.SelectVisitor;
 import com.easy.query.core.lambda.visitor.SelectVisitorV2;
-import com.easy.query.core.lambda.visitor.SqlValue;
 import io.github.kiryu1223.expressionTree.expressions.LambdaExpression;
 
 import java.util.Arrays;
@@ -34,70 +32,70 @@ public class Select extends Criteria
             SQLExpressionProvider<T> sqlExpressionProvider1 = queryable.getSQLExpressionProvider1();
 
             SQLExpression10<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7, s8, s9, s10) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10));
-            return clientQueryable10.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10),queryData);
+            return clientQueryable10.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable9)
         {
             ClientQueryable9 clientQueryable9 = (ClientQueryable9) queryable;
             SQLExpression9<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7, s8, s9) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9));
-            return clientQueryable9.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9),queryData);
+            return clientQueryable9.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable8)
         {
             ClientQueryable8 clientQueryable8 = (ClientQueryable8) queryable;
             SQLExpression8<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7, s8) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8));
-            return clientQueryable8.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8),queryData);
+            return clientQueryable8.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable7)
         {
             ClientQueryable7 clientQueryable7 = (ClientQueryable7) queryable;
             SQLExpression7<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7));
-            return clientQueryable7.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7),queryData);
+            return clientQueryable7.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable6)
         {
             ClientQueryable6 clientQueryable6 = (ClientQueryable6) queryable;
             SQLExpression6<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6));
-            return clientQueryable6.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6),queryData);
+            return clientQueryable6.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable5)
         {
             ClientQueryable5 clientQueryable5 = (ClientQueryable5) queryable;
             SQLExpression5<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5));
-            return clientQueryable5.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5),queryData);
+            return clientQueryable5.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable4)
         {
             ClientQueryable4 clientQueryable4 = (ClientQueryable4) queryable;
             SQLExpression4<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4));
-            return clientQueryable4.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3, s4),queryData);
+            return clientQueryable4.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable3)
         {
             ClientQueryable3 clientQueryable3 = (ClientQueryable3) queryable;
             SQLExpression3<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3) ->
-                    analysis0(Arrays.asList(s1, s2, s3));
-            return clientQueryable3.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2, s3),queryData);
+            return clientQueryable3.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else if (queryable instanceof ClientQueryable2)
         {
             ClientQueryable2 clientQueryable2 = (ClientQueryable2) queryable;
             SQLExpression2<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2) ->
-                    analysis0(Arrays.asList(s1, s2));
-            return clientQueryable2.selectAutoInclude(expression.getReturnType(), selectExpression,false);
+                    analysis0(Arrays.asList(s1, s2),queryData);
+            return clientQueryable2.selectAutoInclude(expression.getReturnType(), selectExpression, false);
         }
         else
         {
             SQLExpression1<ColumnAsSelector<T, R>> selectExpression = (s1) ->
-                    analysis0(Collections.singletonList(s1));
-            return queryable.selectAutoInclude((Class<R>) expression.getReturnType(), selectExpression,false);
+                    analysis0(Collections.singletonList(s1),queryData);
+            return queryable.selectAutoInclude((Class<R>) expression.getReturnType(), selectExpression, false);
         }
     }
 
@@ -699,76 +697,76 @@ public class Select extends Criteria
             SQLExpressionProvider<T> sqlExpressionProvider1 = queryable.getSQLExpressionProvider1();
 
             SQLExpression10<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7, s8, s9, s10) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10));
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9, s10), queryData);
             return clientQueryable10.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable9)
         {
             ClientQueryable9 clientQueryable9 = (ClientQueryable9) queryable;
             SQLExpression9<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7, s8, s9) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9));
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8, s9), queryData);
             return clientQueryable9.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable8)
         {
             ClientQueryable8 clientQueryable8 = (ClientQueryable8) queryable;
             SQLExpression8<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7, s8) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8));
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8), queryData);
             return clientQueryable8.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable7)
         {
             ClientQueryable7 clientQueryable7 = (ClientQueryable7) queryable;
             SQLExpression7<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6, s7) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7));
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6, s7), queryData);
             return clientQueryable7.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable6)
         {
             ClientQueryable6 clientQueryable6 = (ClientQueryable6) queryable;
             SQLExpression6<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5, s6) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6));
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5, s6), queryData);
             return clientQueryable6.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable5)
         {
             ClientQueryable5 clientQueryable5 = (ClientQueryable5) queryable;
             SQLExpression5<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4, s5) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4, s5));
+                    analysis0(Arrays.asList(s1, s2, s3, s4, s5), queryData);
             return clientQueryable5.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable4)
         {
             ClientQueryable4 clientQueryable4 = (ClientQueryable4) queryable;
             SQLExpression4<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3, s4) ->
-                    analysis0(Arrays.asList(s1, s2, s3, s4));
+                    analysis0(Arrays.asList(s1, s2, s3, s4), queryData);
             return clientQueryable4.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable3)
         {
             ClientQueryable3 clientQueryable3 = (ClientQueryable3) queryable;
             SQLExpression3<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2, s3) ->
-                    analysis0(Arrays.asList(s1, s2, s3));
+                    analysis0(Arrays.asList(s1, s2, s3), queryData);
             return clientQueryable3.select(expression.getReturnType(), selectExpression);
         }
         else if (queryable instanceof ClientQueryable2)
         {
             ClientQueryable2 clientQueryable2 = (ClientQueryable2) queryable;
             SQLExpression2<ColumnAsSelector<?, ?>, ColumnAsSelector<?, ?>> selectExpression = (s1, s2) ->
-                    analysis0(Arrays.asList(s1, s2));
+                    analysis0(Arrays.asList(s1, s2), queryData);
             return clientQueryable2.select(expression.getReturnType(), selectExpression);
         }
         else
         {
             SQLExpression1<ColumnAsSelector<T, R>> selectExpression = (s1) ->
-                    analysis0(Collections.singletonList(s1));
+                    analysis0(Collections.singletonList(s1), queryData);
             return queryable.select((Class<R>) expression.getReturnType(), selectExpression);
         }
     }
 
-    private void analysis0(List<ColumnAsSelector<?, ?>> columns)
+    private void analysis0(List<ColumnAsSelector<?, ?>> columns, QueryData queryData)
     {
-        SelectVisitorV2 selectVisitorV2 = new SelectVisitorV2(expression.getParameters(), columns);
+        SelectVisitorV2 selectVisitorV2 = new SelectVisitorV2(expression.getParameters(), columns, queryData);
         selectVisitorV2.visit(expression.getBody());
     }
 

@@ -59,4 +59,16 @@ public class QueryData
     {
         return dbType;
     }
+
+    private Map<String, Integer> indexMap;
+
+    public Map<String, Integer> getIndexMap()
+    {
+        return indexMap;
+    }
+
+    public void setIndexMap(Map<String, Integer> indexMap)
+    {
+        this.indexMap = indexMap;
+    }
 }

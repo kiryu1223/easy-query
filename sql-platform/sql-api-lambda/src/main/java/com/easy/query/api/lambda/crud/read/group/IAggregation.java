@@ -4,10 +4,10 @@ import com.easy.query.api.lambda.sqlext.SqlFunctionInvokeException;
 
 public interface IAggregation
 {
-    default long count()
-    {
-        throw new SqlFunctionInvokeException();
-    }
+//    default long count()
+//    {
+//        throw new SqlFunctionInvokeException();
+//    }
 
     default long count(int i)
     {

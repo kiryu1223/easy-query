@@ -22,17 +22,30 @@ public class GroupedQuery<Key, T> extends QueryBase
     }
 
     // region [HAVING]
-    public GroupedQuery<Key, T> having(@Expr Func1<Group<Key, T>, Boolean> func)
+
+    public GroupedQuery<Key, T> having(@Expr Func1<SqlAggregation<T>, Boolean> func)
     {
         throw new RuntimeException();
     }
 
-    public GroupedQuery<Key, T> having(ExprTree<Func1<Group<Key, T>, Boolean>> expr)
+    public GroupedQuery<Key, T> having(ExprTree<Func1<SqlAggregation<T>, Boolean>> expr)
     {
         Having having = new Having(expr.getTree());
         having.analysis(clientQueryable, queryData);
         return this;
     }
+
+//    public GroupedQuery<Key, T> having(@Expr Func1<Group<Key, T>, Boolean> func)
+//    {
+//        throw new RuntimeException();
+//    }
+//
+//    public GroupedQuery<Key, T> having(ExprTree<Func1<Group<Key, T>, Boolean>> expr)
+//    {
+//        Having having = new Having(expr.getTree());
+//        having.analysis(clientQueryable, queryData);
+//        return this;
+//    }
 
     // endregion
 

@@ -73,5 +73,9 @@ public class SetVisitorV2 extends BaseVisitorV2
             SqlFuncContext sqlFuncContext = (SqlFuncContext) context;
             columnSetter.getSetter().setFunc(columnSetter.getTable(), property, sqlFuncContext.getFunction(fx));
         }
+        else
+        {
+            throw new RuntimeException("不支持的context类型: " + context);
+        }
     }
 }

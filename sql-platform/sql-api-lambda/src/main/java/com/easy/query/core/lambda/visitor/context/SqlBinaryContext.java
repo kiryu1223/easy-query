@@ -1,7 +1,8 @@
 package com.easy.query.core.lambda.visitor.context;
 
-import com.easy.query.core.enums.SQLLikeEnum;
+import com.easy.query.core.enums.AggregatePredicateCompare;
 import com.easy.query.core.expression.builder.Filter;
+import com.easy.query.core.expression.parser.core.base.WhereAggregatePredicate;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
 import com.easy.query.core.func.SQLFunc;
 import com.easy.query.core.func.SQLFunction;
@@ -361,11 +362,147 @@ public class SqlBinaryContext extends SqlContext
         }
         else if (isLikeOperator(operatorType))
         {
-            makeLike(wherePredicate,left,right,operatorType);
+            makeLike(wherePredicate, left, right, operatorType);
         }
         else
         {
             throw new RuntimeException();
+        }
+    }
+
+    @Override
+    public void revHaving(WhereAggregatePredicate<?> whereAggregatePredicate)
+    {
+        if (isAndorOr(operatorType))
+        {
+            left.revHaving(whereAggregatePredicate);
+            if (operatorType == SqlOperator.AND)
+            {
+                whereAggregatePredicate.and();
+            }
+            else
+            {
+                whereAggregatePredicate.or();
+            }
+            right.revHaving(whereAggregatePredicate);
+        }
+        else if (isCompareOperator(operatorType))
+        {
+            if (left instanceof SqlFuncContext)
+            {
+                SqlFuncContext sqlFuncContext = (SqlFuncContext) left;
+                SqlContext context = sqlFuncContext.getArgs().get(0);
+                if (context instanceof SqlPropertyContext)
+                {
+                    SqlPropertyContext propertyContext = (SqlPropertyContext) context;
+                    if (right instanceof SqlValueContext)
+                    {
+                        WhereAggregatePredicate<?> aggregate = (WhereAggregatePredicate<?>) propertyContext.getTableOwner();
+                        SqlValueContext valueContext = (SqlValueContext) right;
+                        switch (sqlFuncContext.getMethodName())
+                        {
+                            case "count":
+                                aggregate.count(propertyContext.getProperty(), getCompareOp(operatorType), valueContext.getValue());
+                                break;
+                            case "sum":
+                                aggregate.sum(propertyContext.getProperty(), getCompareOp(operatorType), valueContext.getValue());
+                                break;
+                            case "avg":
+                                aggregate.avg(propertyContext.getProperty(), getCompareOp(operatorType), valueContext.getValue());
+                                break;
+                            case "min":
+                                aggregate.min(propertyContext.getProperty(), getCompareOp(operatorType), valueContext.getValue());
+                                break;
+                            case "max":
+                                aggregate.max(propertyContext.getProperty(), getCompareOp(operatorType), valueContext.getValue());
+                                break;
+                            default:
+                                throw new RuntimeException();
+                        }
+                    }
+                    else
+                    {
+                        throw new RuntimeException();
+                    }
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
+            }
+            else if (left instanceof SqlValueContext)
+            {
+                SqlValueContext valueContext = (SqlValueContext) left;
+                if (right instanceof SqlFuncContext)
+                {
+                    SqlFuncContext funcContext = (SqlFuncContext) right;
+                    SqlContext context = funcContext.getArgs().get(0);
+                    if (context instanceof SqlPropertyContext)
+                    {
+                        SqlPropertyContext propertyContext = (SqlPropertyContext) context;
+                        WhereAggregatePredicate<?> aggregate = (WhereAggregatePredicate<?>) propertyContext.getTableOwner();
+                        switch (funcContext.getMethodName())
+                        {
+                            case "count":
+                                aggregate.count(propertyContext.getProperty(), getCompareOp(operatorType, true), valueContext.getValue());
+                                break;
+                            case "sum":
+                                aggregate.sum(propertyContext.getProperty(), getCompareOp(operatorType, true), valueContext.getValue());
+                                break;
+                            case "avg":
+                                aggregate.avg(propertyContext.getProperty(), getCompareOp(operatorType, true), valueContext.getValue());
+                                break;
+                            case "min":
+                                aggregate.min(propertyContext.getProperty(), getCompareOp(operatorType, true), valueContext.getValue());
+                                break;
+                            case "max":
+                                aggregate.max(propertyContext.getProperty(), getCompareOp(operatorType, true), valueContext.getValue());
+                                break;
+                            default:
+                                throw new RuntimeException();
+                        }
+                    }
+                    else
+                    {
+                        throw new RuntimeException();
+                    }
+                }
+                else
+                {
+                    throw new RuntimeException();
+                }
+            }
+            else
+            {
+                throw new RuntimeException();
+            }
+        }
+    }
+
+    private AggregatePredicateCompare getCompareOp(SqlOperator sqlOperator)
+    {
+        return getCompareOp(sqlOperator, false);
+    }
+
+
+    private AggregatePredicateCompare getCompareOp(SqlOperator sqlOperator, boolean rev)
+    {
+        switch (sqlOperator)
+        {
+            case EQ:
+                return AggregatePredicateCompare.EQ;
+            case NE:
+                return AggregatePredicateCompare.NE;
+            case LT:
+                return rev ? AggregatePredicateCompare.GT : AggregatePredicateCompare.LT;
+            case GT:
+                return rev ? AggregatePredicateCompare.LT : AggregatePredicateCompare.GT;
+            case LE:
+                return rev ? AggregatePredicateCompare.GE : AggregatePredicateCompare.LE;
+            case GE:
+                return rev ? AggregatePredicateCompare.LE : AggregatePredicateCompare.GE;
+            default:
+                throw new RuntimeException("不支持的sql运算符: " + sqlOperator);
         }
     }
 }

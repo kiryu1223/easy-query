@@ -1,5 +1,7 @@
 package com.easy.query.core.lambda.visitor;
 
+import com.easy.query.api.lambda.crud.read.group.IAggregation;
+import com.easy.query.api.lambda.crud.read.group.IGroup;
 import com.easy.query.api.lambda.sqlext.SqlFunctions;
 import com.easy.query.core.expression.parser.core.EntitySQLTableOwner;
 import com.easy.query.core.expression.parser.core.base.WherePredicate;
@@ -35,8 +37,20 @@ public abstract class BaseVisitorV2 extends Visitor
                 ParameterExpression parameter = (ParameterExpression) methodCallExpression.getExpr();
                 if (parameters.contains(parameter)&&!isVoid(callMethod.getReturnType()))
                 {
-                    int index = parameters.indexOf(parameter);
-                    return new SqlPropertyContext(fieldName(callMethod), owners.get(index));
+                    if (IAggregation.class.isAssignableFrom(callMethod.getDeclaringClass()))
+                    {
+                        SqlFuncContext sqlFuncContext = new SqlFuncContext(callMethod.getName());
+                        for (Expression arg : methodCallExpression.getArgs())
+                        {
+                            sqlFuncContext.getArgs().add(round(arg, parameters));
+                        }
+                        return sqlFuncContext;
+                    }
+                    else
+                    {
+                        int index = parameters.indexOf(parameter);
+                        return new SqlPropertyContext(fieldName(callMethod), owners.get(index));
+                    }
                 }
                 else
                 {
@@ -158,6 +172,11 @@ public abstract class BaseVisitorV2 extends Visitor
         {
             UnaryExpression unaryExpression = (UnaryExpression) expression;
             return new SqlUnaryContext(javaOperatortoSqlOperator(unaryExpression.getOperatorType()), round(unaryExpression.getOperand(), parameters));
+        }
+        else if (expression instanceof LambdaExpression)
+        {
+            LambdaExpression<?> lambdaExpression = (LambdaExpression<?>) expression;
+            return round(lambdaExpression.getBody(), lambdaExpression.getParameters());
         }
         throw new RuntimeException("不支持的表达式: " + expression.getKind() + " " + expression);
     }
